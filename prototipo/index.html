@@ -1,4 +1,4 @@
-<title>Elenco</title>
+<title>Nosso Influencer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -41,7 +41,7 @@ a{color:var(--brand)}
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
 .top-in{max-width:1120px;margin:0 auto;padding:.7rem 16px;display:flex;align-items:center;gap:.75rem 1rem;flex-wrap:wrap}
 .logo{display:flex;align-items:center;gap:.55rem;margin-right:auto}
-.logo-mark{width:34px;height:34px;border-radius:10px;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:1rem}
+.logo-mark{width:34px;height:34px;border-radius:10px;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:.8rem}
 .logo b{font-family:var(--f-display);font-size:1.05rem;font-weight:700;display:block;line-height:1.1}
 .logo small{color:var(--muted);font-size:.74rem}
 .seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px;flex-wrap:wrap}
@@ -207,7 +207,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--brand)}
 
 <header class="top">
   <div class="top-in">
-    <div class="logo"><div class="logo-mark" aria-hidden="true">E</div><div><b id="app-name">Elenco</b><small>Protótipo · nome provisório</small></div></div>
+    <div class="logo"><div class="logo-mark" aria-hidden="true">NI</div><div><b id="app-name">Nosso Influencer</b><small>Protótipo · nome provisório</small></div></div>
     <div class="seg" role="group" aria-label="Ver como">
       <button data-action="mode" data-v="empresa">Empresa</button>
       <button data-action="mode" data-v="criador">Criador</button>
@@ -220,7 +220,7 @@ details summary{cursor:pointer;font-weight:600;color:var(--brand)}
 
 <script>
 /* ================= Configuração ================= */
-const APP = "Elenco"; // nome provisório: troque aqui
+const APP = "Nosso Influencer"; // nome provisório: troque aqui
 const KEY = "elenco-prototipo-v1";
 const ETAPAS = ["Aprovado","Produto enviado","Roteiro em andamento","Aprovar roteiro","Em gravação","Aprovar vídeo","Recompensar e avaliar","Concluído"];
 const QUEM = ["empresa","criador","criador","empresa","criador","empresa","empresa",null]; // quem precisa agir em cada etapa
@@ -649,7 +649,7 @@ function eCriadores(E){
     <div class="cols2" style="margin-top:.85rem"><div class="field"><label for="cv-cid">Cidade</label><select id="cv-cid" name="cidade">${E.cidades.map(c=>`<option>${esc(c)}</option>`).join("")}</select></div>
     <div class="field"><label for="cv-ni">Nicho</label><select id="cv-ni" name="nicho">${NICHOS.map(n=>`<option>${n}</option>`).join("")}</select></div></div>
     <div class="actions" style="margin-top:1rem"><button class="btn">Gerar convite</button></div>
-    <div class="coupon" style="margin-top:1rem"><span class="small" style="overflow-wrap:anywhere">elenco.app/c/${esc(semAcento(E.nome).toLowerCase().replace(/\s+/g,"-"))}</span><button type="button" class="btn sm line" data-action="copy" data-v="elenco.app/c/${esc(semAcento(E.nome).toLowerCase().replace(/\s+/g,"-"))}">Copiar link</button></div>
+    <div class="coupon" style="margin-top:1rem"><span class="small" style="overflow-wrap:anywhere">nossoinfluencer.app/c/${esc(semAcento(E.nome).toLowerCase().replace(/\s+/g,"-"))}</span><button type="button" class="btn sm line" data-action="copy" data-v="nossoinfluencer.app/c/${esc(semAcento(E.nome).toLowerCase().replace(/\s+/g,"-"))}">Copiar link</button></div>
     <p class="hint">Link de cadastro aberto para divulgar na loja e nas redes.</p></form></div>`;
 }
 

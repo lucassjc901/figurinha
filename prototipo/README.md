@@ -1,6 +1,6 @@
 # Protótipo: plataforma de criadores para empresas
 
-Protótipo clicável do produto novo (nome provisório **Elenco**: troque a constante `APP` no início do script e o `<title>`).
+Protótipo clicável do produto novo (nome provisório **Nosso Influencer**: troque a constante `APP` no início do script e o `<title>`).
 
 Abra `index.html` no navegador. Os dados são de exemplo e ficam salvos só no navegador de quem abre. Para recomeçar: **Plataforma → Restaurar dados de exemplo**.
 
