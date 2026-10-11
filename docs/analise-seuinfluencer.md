@@ -7,9 +7,10 @@ Fonte: prints do app (app.seuinfluencer.com, versão 2.0.179, conta da marca "Pr
 | Tela | O que tem |
 |---|---|
 | **Landing** | "Uma plataforma que conecta a sua marca com criadores de conteúdo". Abas Sou Marca / Sou Creator / Sou Agência. CTA único: "Agendar Apresentação" (venda consultiva, sem preço público). |
+| **Início (painel)** | Contadores de campanhas criadas, ativas e em análise (as campanhas passam por análise da plataforma antes de ir ao ar). Dois atalhos grandes: "Painel de campanhas" e "Criar campanha". Blocos "Últimas inscrições", "Notificações de campanhas" (ex.: "Campanha desativada", a da Prime Fit foi inativada há 117 dias) e "Suporte". |
 | **Campanha › Inscritos** | Nome da campanha, contador de "vagas restantes", filtros (nome, status, nichos, estado). Cada inscrito tem foto, data/hora, mensagem de candidatura ("pitch"), status (Pendente), botões Perfil / Recusar / Aprovar e um marcador para favoritar. Caixa de mensagens com contador. |
 | **Criar campanha (wizard)** | 7 passos: Início → Nome & Tipo → Branding → Restrições → Valores → Descrição IA → Revisar. "2 minutinhos e nossa IA fará seu briefing". Pede para descrever o produto **sem citar a marca** (campanha às cegas na divulgação), objetivo da campanha e se a IA deve escrever o briefing. |
-| **CRM de creators aprovados** | Kanban por etapa: Aprovado → Produto enviado → Roteiro em andamento → Aprovar (roteiro/vídeo) → … Filtro por campanha, períodos 60d/120d, "Não lidas", **envio em massa** de mensagens, botão "Ver tutorial". |
+| **CRM de creators aprovados** | Kanban com 8 etapas: **Aprovado → Produto enviado → Roteiro em andamento → Aprovar roteiro → Em gravação → Aprovar gravação → Pagar e avaliar → Concluído**. Há duas aprovações da marca (roteiro e gravação) e a avaliação do criador no pagamento. Legenda de cores por etapa. Filtro por campanha, períodos 60d/120d, "Não lidas", **envio em massa** de mensagens, botão "Ver tutorial". |
 | **Pagamentos e assinaturas** | Pagamentos por campanha feitos dentro da plataforma. **Assinaturas digitais** de termos e políticas com data e hora. |
 | **Suporte** | Busca na FAQ + botão "Chamar Whats". FAQs: cancelar campanha lançada, endereço do influencer para enviar produto, como pagar o influencer, como enviar o briefing aos aprovados. |
 
@@ -35,6 +36,8 @@ Fonte: prints do app (app.seuinfluencer.com, versão 2.0.179, conta da marca "Pr
 6. **CRM vazio e kanban largo**, que no iPad corta colunas; precisa de tutorial para ser entendido.
 7. **A base de criadores depende de um curso pago** (alunos da Rafaela Chagas), o que limita e enviesa a base.
 8. **Suporte raso:** quatro FAQs e WhatsApp.
+9. **Campanhas ficam paradas:** passam por análise da plataforma e podem ser desativadas (aconteceu com a da Prime Fit). Sem time fixo, a marca fica sem conteúdo entre uma campanha e outra.
+10. **Kanban de 8 colunas** não cabe na tela, nem no iPad; precisa rolar de lado e usar setas.
 
 ## O que o Time Prime já tem e eles não
 
@@ -47,7 +50,7 @@ Juntar os dois: **o fluxo de campanha e CRM deles + a gamificação e a mediçã
 Módulos do MVP:
 1. **Conta da empresa:** marca, cores, logo, termo próprio, cidades/lojas, regras de pontos, recompensas.
 2. **Campanhas** com wizard e briefing por IA, vagas e candidatura com pitch.
-3. **CRM kanban:** aprovado → produto enviado → roteiro → vídeo enviado → aprovado → publicado / em anúncio → campeão.
+3. **CRM kanban:** as 8 etapas deles (aprovado → produto enviado → roteiro → aprovar roteiro → gravação → aprovar gravação → pagar/recompensar e avaliar → concluído) + as nossas depois da entrega: **publicado → em anúncio → campeão**, com vendas do cupom ligadas ao vídeo.
 4. **Time fixo da marca (o Time Prime de hoje):** missões, pontos, níveis, ranking, cupom, loja de recompensas.
 5. **Termo com aceite registrado** (data, hora e versão do termo).
 6. **Mensagens** (individual e em massa).
