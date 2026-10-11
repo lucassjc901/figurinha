@@ -1,0 +1,925 @@
+<title>Elenco</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: barra fixa com o modo (Empresa / Criador / Plataforma), seletor de contexto e abas roláveis; conteúdo em coluna única até 1120px. */
+:root{
+  --bg:#F2F4F3;--surface:#FFFFFF;--sunk:#E7ECEA;--ink:#13201C;--muted:#5B6A65;--line:#D7DFDB;
+  --brand:#0F5C55;--brand-ink:#FFFFFF;--brand-soft:#DCEDEA;
+  --accent:#D9860F;--accent-ink:#1E1300;--accent-soft:#FBEBD2;
+  --ok:#2C7A4B;--ok-soft:#DDF0E3;--warn:#9A5B00;--warn-soft:#FDEFD6;--bad:#B3392B;--bad-soft:#F8E0DC;
+  --gold:#C9950C;--silver:#93A19C;--bronze:#B5733F;
+  --f-display:"Unbounded","Figtree",system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0D1614;--surface:#15211E;--sunk:#1C2A27;--ink:#E6EEEB;--muted:#9DB0AA;--line:#2A3A36;
+  --brand:#56C2B2;--brand-ink:#08201C;--brand-soft:#173A35;
+  --accent:#F0A93E;--accent-ink:#1E1300;--accent-soft:#3A2A12;
+  --ok:#72CC93;--ok-soft:#163A25;--warn:#F0B24E;--warn-soft:#3A2C12;--bad:#EE7E6E;--bad-soft:#3D1C18;
+  --gold:#E8BE45;--silver:#AAB7B2;--bronze:#D08E5E;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0D1614;--surface:#15211E;--sunk:#1C2A27;--ink:#E6EEEB;--muted:#9DB0AA;--line:#2A3A36;
+  --brand:#56C2B2;--brand-ink:#08201C;--brand-soft:#173A35;
+  --accent:#F0A93E;--accent-ink:#1E1300;--accent-soft:#3A2A12;
+  --ok:#72CC93;--ok-soft:#163A25;--warn:#F0B24E;--warn-soft:#3A2C12;--bad:#EE7E6E;--bad-soft:#3D1C18;
+  --gold:#E8BE45;--silver:#AAB7B2;--bronze:#D08E5E;color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3{margin:0;line-height:1.2;text-wrap:balance}
+h1,.display{font-family:var(--f-display);font-weight:700;letter-spacing:-.01em}
+h2{font-size:1.15rem;font-weight:700}
+h3{font-size:1rem;font-weight:700}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--brand)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.num,td.num,.kpi b{font-variant-numeric:tabular-nums}
+
+/* Barra superior */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-in{max-width:1120px;margin:0 auto;padding:.7rem 16px;display:flex;align-items:center;gap:.75rem 1rem;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:.55rem;margin-right:auto}
+.logo-mark{width:34px;height:34px;border-radius:10px;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:1rem}
+.logo b{font-family:var(--f-display);font-size:1.05rem;font-weight:700;display:block;line-height:1.1}
+.logo small{color:var(--muted);font-size:.74rem}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;padding:.38rem .85rem;border-radius:999px;cursor:pointer;font-weight:600;font-size:.88rem;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink)}
+
+.wrap{max-width:1120px;margin:0 auto;padding-inline:16px;padding-block:1rem 6rem}
+.ctx{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem}
+.ctx select{width:auto;max-width:100%;font-weight:600}
+.tabs{display:flex;gap:.25rem;overflow-x:auto;margin:0 0 1.1rem;padding-bottom:2px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;border:0;background:transparent;padding:.5rem .8rem;border-radius:10px;cursor:pointer;font-weight:600;color:var(--muted);font-size:.93rem}
+.tabs button[aria-selected="true"]{background:var(--brand-soft);color:var(--brand)}
+.count{display:inline-block;min-width:1.4em;padding:0 .35em;margin-left:.35em;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:.74rem;line-height:1.4em;text-align:center;font-weight:700}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1.05rem}
+.stack{display:flex;flex-direction:column;gap:1rem}
+.grid2{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));align-items:start}
+.row{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.between{justify-content:space-between}
+.muted{color:var(--muted)}
+.small{font-size:.86rem}
+.tiny{font-size:.78rem}
+.ph{display:flex;justify-content:space-between;align-items:baseline;gap:.5rem;flex-wrap:wrap;margin-bottom:.75rem}
+.note{background:var(--sunk);border-radius:10px;padding:.6rem .8rem;font-size:.86rem;color:var(--muted)}
+
+/* KPIs */
+.kpis{display:grid;gap:.7rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));margin-bottom:1rem}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.8rem .95rem}
+.kpi b{display:block;font-family:var(--f-display);font-size:1.35rem;font-weight:700}
+.kpi span{color:var(--muted);font-size:.84rem}
+.kpi.hot{border-color:var(--accent);background:var(--accent-soft)}
+
+/* Botões */
+.btn{border:0;border-radius:10px;padding:.55rem .95rem;font-weight:700;cursor:pointer;background:var(--brand);color:var(--brand-ink);display:inline-flex;align-items:center;gap:.35rem;text-decoration:none;font-size:.92rem}
+.btn:hover{filter:brightness(1.06)}
+.btn.alt{background:var(--accent);color:var(--accent-ink)}
+.btn.line{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn.danger{background:var(--bad-soft);color:var(--bad)}
+.btn.sm{padding:.34rem .65rem;font-size:.83rem;border-radius:8px}
+.btn[disabled]{opacity:.45;cursor:not-allowed;filter:none}
+.icon-btn{border:1px solid var(--line);background:transparent;border-radius:8px;width:2rem;height:2rem;cursor:pointer;font-size:1rem;line-height:1;color:var(--muted)}
+.icon-btn[aria-pressed="true"]{color:var(--gold);border-color:var(--gold)}
+.actions{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.6rem}
+
+/* Formulários */
+label{display:block;font-weight:600;font-size:.88rem;margin-bottom:.3rem}
+input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:.55rem .7rem}
+input[type=checkbox],input[type=radio]{width:auto;accent-color:var(--brand)}
+input[type=color]{padding:.2rem;height:2.4rem;width:4rem}
+textarea{min-height:84px;resize:vertical}
+.field+.field{margin-top:.85rem}
+.hint{font-size:.8rem;color:var(--muted);margin-top:.25rem}
+.choices{display:flex;gap:.45rem;flex-wrap:wrap}
+.choices label{display:flex;align-items:center;gap:.4rem;border:1px solid var(--line);border-radius:10px;padding:.45rem .7rem;cursor:pointer;margin:0;font-weight:500;background:var(--bg)}
+.choices.big label{flex:1 1 220px;align-items:flex-start;flex-direction:column;gap:.1rem}
+.choices.big label span{font-weight:400;font-size:.84rem;color:var(--muted)}
+.choices.big label b{display:flex;gap:.4rem;align-items:center}
+.cols2{display:grid;gap:.85rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
+.cols2 .field+.field{margin-top:0}
+
+/* Chips */
+.chips{display:flex;gap:.3rem;flex-wrap:wrap;margin-top:.35rem}
+.chip{font-size:.76rem;font-weight:600;padding:.1rem .55rem;border-radius:999px;background:var(--brand-soft);color:var(--brand);white-space:nowrap}
+.chip.wait{background:var(--accent-soft);color:var(--warn)}
+.chip.ok{background:var(--ok-soft);color:var(--ok)}
+.chip.no{background:var(--bad-soft);color:var(--bad)}
+.chip.grey{background:var(--sunk);color:var(--muted)}
+.chip.star{background:var(--gold);color:#241A00}
+.tag-emp{display:inline-flex;align-items:center;gap:.35rem;font-weight:700;font-size:.82rem}
+.sig{width:1.55rem;height:1.55rem;border-radius:7px;display:inline-grid;place-items:center;color:#fff;font-family:var(--f-display);font-size:.62rem;font-weight:700;flex:none}
+
+/* Listas */
+.item{display:flex;gap:.75rem;align-items:flex-start;padding:.85rem 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:0;padding-top:0}
+.item:last-child{padding-bottom:0}
+.body{flex:1;min-width:0}
+.title{font-weight:700;overflow-wrap:anywhere}
+.av{width:2.6rem;height:2.6rem;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:.9rem;flex:none}
+.pitch{margin-top:.35rem;font-size:.9rem;color:var(--ink);overflow-wrap:anywhere}
+.quote{margin-top:.45rem;padding:.55rem .75rem;border-left:3px solid var(--brand);background:var(--sunk);border-radius:0 8px 8px 0;font-size:.9rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.quote.warn{border-left-color:var(--accent)}
+.empty{padding:1.4rem;text-align:center;color:var(--muted)}
+
+/* Etapas (CRM) */
+.stages{display:flex;gap:.35rem;overflow-x:auto;padding-bottom:.3rem;margin-bottom:.9rem;scrollbar-width:thin}
+.stages button{flex:none;display:flex;align-items:center;gap:.4rem;border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:.45rem .7rem;cursor:pointer;font-weight:600;font-size:.86rem;color:var(--ink)}
+.stages button .n{font-variant-numeric:tabular-nums;min-width:1.5em;text-align:center;border-radius:999px;background:var(--sunk);font-size:.76rem;padding:0 .3em}
+.stages button.you .n{background:var(--accent);color:var(--accent-ink)}
+.stages button[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.stages button[aria-pressed="true"] .n{background:var(--brand-ink);color:var(--brand)}
+.who{font-size:.76rem;color:var(--muted);margin-bottom:.8rem}
+.track{display:flex;gap:3px;margin-top:.5rem}
+.track i{flex:1;height:6px;border-radius:3px;background:var(--sunk)}
+.track i.done{background:var(--brand)}
+.track i.now{background:var(--accent)}
+.stars{display:inline-flex;gap:.15rem}
+.stars button{border:0;background:none;cursor:pointer;font-size:1.25rem;color:var(--line);padding:0 .1rem;line-height:1}
+.stars button.on{color:var(--gold)}
+.stars-ro{color:var(--gold);letter-spacing:.05em}
+
+/* Funil */
+.funnel{display:flex;flex-direction:column;gap:.45rem}
+.fr{display:grid;grid-template-columns:minmax(0,9.5rem) 1fr 3rem;gap:.6rem;align-items:center;font-size:.88rem}
+.fr .bar{height:14px;border-radius:7px;background:var(--sunk);overflow:hidden}
+.fr .bar i{display:block;height:100%;background:var(--brand);border-radius:7px}
+.fr:last-child .bar i{background:var(--accent)}
+.fr b{text-align:right;font-variant-numeric:tabular-nums}
+
+/* Ranking */
+.podium{display:grid;grid-template-columns:repeat(3,1fr);align-items:end;gap:.6rem;margin:.4rem 0 1rem}
+.pod{text-align:center;min-width:0}
+.pod .pn{font-weight:700;font-size:.9rem;overflow-wrap:anywhere}
+.pod .pp{color:var(--muted);font-size:.78rem;margin-bottom:.35rem}
+.pod .blk{border-radius:10px 10px 4px 4px;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:1.4rem;color:#fff}
+.p1 .blk{height:110px;background:var(--gold);color:#241A00}.p2 .blk{height:82px;background:var(--silver)}.p3 .blk{height:62px;background:var(--bronze)}
+.rank{list-style:none;margin:0;padding:0}
+.rank li{display:flex;align-items:center;gap:.7rem;padding:.55rem .3rem;border-top:1px solid var(--line)}
+.rank li:first-child{border-top:0}
+.rank .pos{width:1.7rem;text-align:center;font-family:var(--f-display);font-weight:700;color:var(--muted);font-size:.9rem}
+.rank .me{background:var(--brand-soft);border-radius:10px}
+.rank .n{flex:1;min-width:0}
+.rank .n small{display:block;color:var(--muted)}
+
+/* Hero do criador */
+.hero{background:var(--brand);color:var(--brand-ink);border-radius:18px;padding:1.1rem 1.15rem}
+.hero .nm{font-family:var(--f-display);font-size:1.25rem;font-weight:700}
+.hero .sub{opacity:.85;font-size:.9rem}
+.bcards{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr))}
+.bcard{border:1px solid var(--line);border-radius:14px;padding:.9rem;background:var(--surface)}
+.bcard .pts{font-family:var(--f-display);font-size:1.5rem;font-weight:700}
+.lvl{height:8px;border-radius:4px;background:var(--sunk);overflow:hidden;margin:.35rem 0 .2rem}
+.lvl i{display:block;height:100%;background:var(--accent)}
+.coupon{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-top:.6rem;border:1.5px dashed var(--line);border-radius:10px;padding:.4rem .6rem}
+.coupon code{font-family:var(--f-display);font-weight:700;letter-spacing:.04em;font-size:.95rem}
+
+/* Loja e planos */
+.shop{display:grid;gap:.7rem;grid-template-columns:repeat(auto-fill,minmax(min(100%,200px),1fr))}
+.prod{border:1px solid var(--line);border-radius:14px;padding:.85rem;display:flex;flex-direction:column;gap:.4rem;background:var(--surface)}
+.prod .cost{font-family:var(--f-display);font-weight:700;color:var(--accent);font-size:1.1rem}
+.prod .btn{margin-top:auto;align-self:flex-start}
+.plan .price{font-family:var(--f-display);font-weight:700;font-size:1.5rem}
+.plan .price small{font-family:var(--f-body);font-size:.85rem;color:var(--muted);font-weight:500}
+
+/* Wizard */
+.steps{display:flex;gap:.3rem;overflow-x:auto;margin-bottom:1rem;padding-bottom:2px}
+.steps span{flex:none;font-size:.8rem;font-weight:600;padding:.3rem .6rem;border-radius:999px;background:var(--sunk);color:var(--muted)}
+.steps span.on{background:var(--brand);color:var(--brand-ink)}
+.steps span.done{background:var(--brand-soft);color:var(--brand)}
+.termo{max-height:220px;overflow-y:auto;background:var(--sunk);border-radius:10px;padding:.75rem .9rem;font-size:.86rem;white-space:pre-wrap}
+
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{text-align:left;padding:.55rem .45rem;border-top:1px solid var(--line);vertical-align:middle}
+th{color:var(--muted);font-weight:600;font-size:.8rem;border-top:0;white-space:nowrap}
+td.num,th.num{text-align:right}
+details summary{cursor:pointer;font-weight:600;color:var(--brand)}
+
+.toast{position:fixed;left:50%;bottom:calc(1.1rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(16px);background:var(--ink);color:var(--bg);padding:.65rem 1rem;border-radius:12px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:calc(100vw - 32px);z-index:50}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="logo"><div class="logo-mark" aria-hidden="true">E</div><div><b id="app-name">Elenco</b><small>Protótipo · nome provisório</small></div></div>
+    <div class="seg" role="group" aria-label="Ver como">
+      <button data-action="mode" data-v="empresa">Empresa</button>
+      <button data-action="mode" data-v="criador">Criador</button>
+      <button data-action="mode" data-v="plataforma">Plataforma</button>
+    </div>
+  </div>
+</header>
+<main class="wrap" id="app"></main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ================= Configuração ================= */
+const APP = "Elenco"; // nome provisório: troque aqui
+const KEY = "elenco-prototipo-v1";
+const ETAPAS = ["Aprovado","Produto enviado","Roteiro em andamento","Aprovar roteiro","Em gravação","Aprovar vídeo","Recompensar e avaliar","Concluído"];
+const QUEM = ["empresa","criador","criador","empresa","criador","empresa","empresa",null]; // quem precisa agir em cada etapa
+const NIVEIS = [{nome:"Iniciante",min:0},{nome:"Criador",min:150},{nome:"Embaixador",min:400},{nome:"Embaixador Elite",min:800}];
+const PLANOS = {
+  essencial:{nome:"Essencial",preco:197,itens:["1 cidade ou loja","Até 30 criadores","Campanhas e missões ilimitadas","Ranking, pontos e cupons"]},
+  pro:{nome:"Profissional",preco:497,itens:["Até 5 cidades ou lojas","Até 150 criadores","Briefing com IA","Envio de mensagens em massa"]},
+  rede:{nome:"Rede",preco:1290,itens:["Franquias e redes","Criadores ilimitados","Disputa entre unidades","Gerente de conta"]}
+};
+const NICHOS = ["Fitness","Gastronomia","Beleza","Lifestyle","Maternidade","Humor"];
+const OBJETIVOS = ["Vídeos para anúncios","Divulgação no perfil dos criadores","Lançamento de produto","Levar clientes à loja física"];
+const TIPOS = {ugc:"Vídeo para anúncio (UGC)",perfil:"Post no perfil do criador",ambos:"Anúncio + post no perfil"};
+const DEF_PTS = {video:10,publicado:10,ads:30,campeao:100,missao:20,venda:5};
+const TERMO_PADRAO = n => `Ao participar do programa de criadores da ${n}, declaro estar ciente de que a parceria pode ser remunerada em dinheiro, em produtos (permuta) ou em pontos trocáveis por recompensas, conforme descrito em cada campanha.
+
+Encerramento: qualquer uma das partes pode encerrar a parceria a qualquer momento, sem multa.
+
+Uso de imagem: autorizo a ${n} a usar minha imagem, nome, voz e os vídeos produzidos nas campanhas em redes sociais, site, materiais impressos e anúncios patrocinados, incluindo cortes, legendas e adaptações de formato, preservando o contexto da minha participação.
+
+Os conteúdos usados durante a parceria não precisam ser apagados após o encerramento, observada a legislação aplicável.`;
+
+/* ================= Utilidades ================= */
+const uid = () => Math.random().toString(36).slice(2,9);
+const daysAgo = n => new Date(Date.now()-n*864e5).toISOString();
+const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtD = iso => new Date(iso).toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"});
+const fmtN = n => Number(n||0).toLocaleString("pt-BR");
+const brl = n => "R$ " + Number(n||0).toLocaleString("pt-BR",{minimumFractionDigits:0});
+const kseg = n => n>=1000 ? (n/1000).toLocaleString("pt-BR",{maximumFractionDigits:1})+" mil" : String(n);
+const dias = iso => Math.max(0,Math.floor((Date.now()-new Date(iso))/864e5));
+const semAcento = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"");
+const hue = s => [...s].reduce((a,c)=>a+c.charCodeAt(0),0)%360;
+const avatar = (n,size) => `<span class="av" style="background:hsl(${hue(n)} 42% 40%)${size?`;width:${size};height:${size}`:""}" aria-hidden="true">${esc(n.split(" ").map(p=>p[0]).slice(0,2).join(""))}</span>`;
+const sig = e => `<span class="sig" style="background:${esc(e.cor)}" aria-hidden="true">${esc(e.sigla)}</span>`;
+const tagEmp = e => `<span class="tag-emp">${sig(e)}${esc(e.nome)}</span>`;
+const stars = n => n ? `<span class="stars-ro" aria-label="${n} de 5">${"★".repeat(n)}${"☆".repeat(5-n)}</span>` : "";
+
+/* ================= Dados de exemplo ================= */
+function seed(){
+  const E = (id,nome,sigla,segmento,cor,cidades,plano,desde)=>({id,nome,sigla,segmento,cor,cidades,plano,desde:daysAgo(desde),pts:{...DEF_PTS},termo:{versao:1,data:daysAgo(desde),texto:TERMO_PADRAO(nome)},recompensas:[]});
+  const empresas = [
+    E("e1","Prime Fit","PF","Marmitas fitness","#2F7A4D",["São José dos Campos","Taubaté","Jacareí"],"pro",120),
+    E("e2","Studio Força","SF","Academia","#C2410C",["São Paulo"],"essencial",45),
+    E("e3","Bella Pele","BP","Cosméticos","#A63D74",["Campinas","Sorocaba","São Paulo"],"rede",80)
+  ];
+  const R = (nome,desc,custo)=>({id:uid(),nome,desc,custo});
+  empresas[0].recompensas=[R("Kit 5 marmitas","Sabores à sua escolha, retirada na loja.",120),R("Semana de sucos","5 sucos detox entregues em casa.",90),R("Camiseta de treino","Dry-fit com a marca.",150),R("Kit 20 marmitas + destaque","Marmitas do mês e um post no perfil oficial.",450)];
+  empresas[1].recompensas=[R("1 mês de plano","Mensalidade grátis.",200),R("Avaliação física","Com nutricionista parceiro.",80),R("Garrafa Studio Força","Térmica, 750 ml.",60)];
+  empresas[2].recompensas=[R("Sérum vitamina C","30 ml.",110),R("Kit rotina completa","Limpeza, sérum e hidratante.",280),R("Day spa","Sessão de limpeza de pele.",400)];
+
+  const C = (id,nome,insta,cidade,nicho,seg,bio)=>({id,nome,insta,cidade,uf:"SP",nicho,seguidores:seg,bio});
+  const criadores = [
+    C("c1","Ana Beatriz Ramos","@anabia.fit","São José dos Campos","Fitness",18400,"Treino de manhã e marmita na bolsa."),
+    C("c2","Rafael Souza","@rafa.treina","São José dos Campos","Fitness",9100,"Personal trainer, dicas rápidas."),
+    C("c3","Juliana Lima","@ju.lima","Taubaté","Lifestyle",32500,"Rotina real de quem trabalha fora."),
+    C("c4","Carlos Mendes","@carlao.cross","Jacareí","Fitness",6700,"Crossfit e comida de verdade."),
+    C("c5","Paula Rocha","@paularocha","São Paulo","Beleza",54000,"Skincare sem enrolação."),
+    C("c6","Diego Alves","@diego.alves","São Paulo","Humor",21000,"Esquetes do dia a dia."),
+    C("c7","Fernanda Costa","@fe.costa","Campinas","Beleza",12800,"Maquiagem para pele madura."),
+    C("c8","Bruno Martins","@bruno.run","São Paulo","Fitness",4300,"Corrida e primeiros 5 km."),
+    C("c9","Larissa Nogueira","@lari.nog","Sorocaba","Maternidade",15600,"Mãe de dois, autocuidado possível."),
+    C("c10","Marina Teixeira","@marinat.cozinha","Taubaté","Gastronomia",7800,"Receitas saudáveis em 15 minutos."),
+    C("c11","Thiago Prado","@thiagoprado","São José dos Campos","Gastronomia",2900,"Comida boa e barata."),
+    C("c12","Camila Duarte","@cami.duarte","Campinas","Lifestyle",41000,"Viagens curtas e bem-estar.")
+  ];
+  const V = (empId,criId,vendas,fixo=true,termoDias=60)=>{const c=criadores.find(x=>x.id===criId);return {id:uid(),empId,criId,fixo,vendas,cupom:semAcento(c.nome.split(" ")[0]).toUpperCase()+"10",termoVersao:1,termoData:daysAgo(termoDias),desde:daysAgo(termoDias)};};
+  const vinculos = [V("e1","c1",14),V("e1","c2",9),V("e1","c3",3),V("e1","c4",11),V("e1","c10",6),V("e1","c11",2),
+    V("e2","c8",5,true,30),V("e2","c6",3,true,30),V("e2","c5",0,false,3),
+    V("e3","c7",8),V("e3","c9",4),V("e3","c12",10),V("e3","c5",0,false,5),V("e1","c12",0,false,4)];
+
+  const K = (id,empId,o)=>Object.assign({id,empId,modelo:"aberta",tipo:"ugc",duracao:"30s",objetivo:OBJETIVOS[0],tom:"Descontraído",mostrar:"",evitar:"",nichos:[],cidades:[],minSeg:0,vagas:5,dinheiro:0,permuta:"",prazo:"",status:"ativa",criada:daysAgo(10),briefing:""},o);
+  const campanhas = [
+    K("k1","e1",{titulo:"Marmita no pós-treino",produto:"Marmitas fitness congeladas, prontas em 5 minutos no micro-ondas.",nichos:["Fitness","Gastronomia","Lifestyle"],cidades:["São José dos Campos","Taubaté","Jacareí"],minSeg:2000,vagas:8,dinheiro:150,permuta:"Kit 10 marmitas",prazo:"25/10",criada:daysAgo(9),mostrar:"Abrindo a marmita e a primeira garfada.",evitar:"Falar de emagrecimento rápido."}),
+    K("k2","e1",{titulo:"Reação ao novo sabor",modelo:"missao",produto:"Novo sabor: frango ao molho de mostarda e mel.",prazo:"quarta",criada:daysAgo(5),mostrar:"Reação sincera na primeira prova.",tipo:"ambos"}),
+    K("k3","e2",{titulo:"Minha primeira aula",produto:"Aula experimental gratuita de musculação guiada.",objetivo:OBJETIVOS[3],nichos:["Fitness","Lifestyle","Humor"],cidades:["São Paulo"],minSeg:3000,vagas:5,dinheiro:250,prazo:"30/10",criada:daysAgo(12),tipo:"ambos"}),
+    K("k4","e3",{titulo:"Skincare em 30 segundos",produto:"Sérum de vitamina C com textura leve.",nichos:["Beleza","Lifestyle","Maternidade"],cidades:["Campinas","Sorocaba","São Paulo"],minSeg:5000,vagas:10,dinheiro:300,permuta:"Kit rotina completa",prazo:"05/11",criada:daysAgo(14)}),
+    K("k5","e1",{titulo:"Rotina de marmitas da semana",produto:"Combo de 10 marmitas da semana.",nichos:["Fitness","Lifestyle","Gastronomia"],cidades:["São José dos Campos","Taubaté","Jacareí"],vagas:6,dinheiro:120,permuta:"Kit 10 marmitas",status:"encerrada",criada:daysAgo(40)})
+  ];
+  campanhas.forEach(c=>c.briefing=gerarBriefing(c,0));
+
+  const I = (campId,criId,o)=>Object.assign({id:uid(),campId,criId,pitch:"",status:"aprovado",etapa:0,fav:false,data:daysAgo(6),mov:daysAgo(2),roteiro:"",video:"",ajuste:"",nota:0,publicado:false,ads:false,campeao:false,pago:false},o);
+  const inscricoes = [
+    I("k1","c1",{etapa:5,data:daysAgo(8),mov:daysAgo(1),pitch:"Gravo saindo do treino às 6h, abrindo a marmita no carro.",roteiro:"Gancho: “o que eu como depois do treino das 6h”. Mostro a marmita, esquento, primeira garfada.",video:"https://drive.google.com/file/d/exemplo-anabia"}),
+    I("k1","c2",{etapa:3,data:daysAgo(7),mov:daysAgo(1),pitch:"Faço um antes e depois da minha semana sem cozinhar.",roteiro:"Gancho: “parei de cozinhar no domingo”. Mostro a geladeira com as marmitas, explico os macros de uma, termino comendo."}),
+    I("k1","c4",{etapa:1,data:daysAgo(6),mov:daysAgo(3),pitch:"Box de crossfit, pós-WOD, galera comendo junto."}),
+    I("k1","c10",{etapa:0,data:daysAgo(4),mov:daysAgo(1),pitch:"Comparo minha receita de 15 minutos com a marmita pronta."}),
+    I("k1","c11",{status:"pendente",etapa:0,data:daysAgo(1),pitch:"Mostro quanto gasto por semana comendo fora e quanto economizo com as marmitas."}),
+    I("k1","c3",{status:"pendente",etapa:0,data:daysAgo(2),pitch:"Rotina real: saio às 7h e volto às 19h. Mostro como a marmita encaixa no dia."}),
+    I("k1","c12",{status:"pendente",etapa:0,data:daysAgo(1),pitch:"Viajo muito a trabalho e posso mostrar a marmita no quarto de hotel."}),
+    I("k2","c3",{etapa:5,data:daysAgo(4),mov:daysAgo(0),video:"https://instagram.com/reel/exemplo-julima"}),
+    I("k2","c1",{etapa:7,data:daysAgo(5),mov:daysAgo(3),video:"https://instagram.com/reel/exemplo-anabia2",publicado:true,nota:5}),
+    I("k2","c4",{etapa:4,data:daysAgo(3),mov:daysAgo(3)}),
+    I("k3","c8",{etapa:6,data:daysAgo(10),mov:daysAgo(1),pitch:"Sou iniciante na corrida e nunca fiz musculação. Mostro a primeira aula de verdade.",roteiro:"Chego nervoso, o professor me recebe, mostro 3 exercícios, termino falando como me senti.",video:"https://drive.google.com/file/d/exemplo-bruno"}),
+    I("k3","c6",{status:"pendente",etapa:0,data:daysAgo(2),pitch:"Esquete: o cara que vai à academia pela primeira vez e só quer achar o bebedouro."}),
+    I("k3","c5",{status:"pendente",etapa:0,data:daysAgo(3),pitch:"Mostro como encaixo treino na rotina de skincare da manhã."}),
+    I("k4","c7",{etapa:4,data:daysAgo(9),mov:daysAgo(2),pitch:"Mostro o sérum na pele madura, antes da maquiagem.",roteiro:"Pele limpa, 3 gotas, espalho, maquiagem por cima sem craquelar."}),
+    I("k4","c9",{etapa:2,data:daysAgo(8),mov:daysAgo(2),pitch:"Skincare em 30 segundos com criança no colo.",ajuste:"Mostre o rótulo do produto por 2 segundos."}),
+    I("k4","c12",{etapa:7,data:daysAgo(13),mov:daysAgo(5),pitch:"Rotina de hotel em 30 segundos.",video:"https://instagram.com/reel/exemplo-cami",ads:true,nota:4,pago:true}),
+    I("k4","c5",{etapa:0,data:daysAgo(5),mov:daysAgo(2),pitch:"Comparo com o sérum que eu usava e mostro a textura."}),
+    I("k5","c1",{etapa:7,data:daysAgo(38),mov:daysAgo(25),video:"https://instagram.com/reel/exemplo-1",publicado:true,ads:true,campeao:true,nota:5,pago:true}),
+    I("k5","c4",{etapa:7,data:daysAgo(38),mov:daysAgo(26),video:"https://instagram.com/reel/exemplo-2",ads:true,nota:4,pago:true}),
+    I("k5","c3",{etapa:7,data:daysAgo(37),mov:daysAgo(27),video:"https://instagram.com/reel/exemplo-3",publicado:true,nota:4,pago:true}),
+    I("k5","c2",{etapa:7,data:daysAgo(37),mov:daysAgo(28),video:"https://instagram.com/reel/exemplo-4",publicado:true,nota:3,pago:true}),
+    I("k5","c11",{status:"recusado",etapa:0,data:daysAgo(39),motivo:"Vagas preenchidas."})
+  ];
+  const resgates = [{id:uid(),empId:"e1",criId:"c2",nome:"Kit 5 marmitas",custo:120,data:daysAgo(4),entregue:false}];
+  const mensagens = [
+    {id:uid(),empId:"e1",para:"Todo o time fixo",criIds:["c1","c2","c3","c4","c10","c11"],texto:"Saiu o sabor novo! A missão “Reação ao novo sabor” vale +20 pontos até quarta.",data:daysAgo(5)},
+    {id:uid(),empId:"e3",para:"Aprovados: Skincare em 30 segundos",criIds:["c7","c9","c12","c5"],texto:"Os kits saem na segunda pelos Correios. Confirmem o endereço no perfil.",data:daysAgo(3)}
+  ];
+  return {empresas,criadores,vinculos,campanhas,inscricoes,resgates,mensagens,
+    ui:{mode:"empresa",empId:"e1",criId:"c1",tabE:"inicio",tabC:"inicio",etapa:null,crmCamp:"todas",campId:null,wiz:null,fil:{},rankCity:"todas",timeSub:"ranking",rankEmp:null,lojaEmp:null,ajuste:null,apply:null}};
+}
+
+/* ================= Estado ================= */
+let S;
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+const emp = id => S.empresas.find(e=>e.id===id);
+const cri = id => S.criadores.find(c=>c.id===id);
+const camp = id => S.campanhas.find(c=>c.id===id);
+const ins = id => S.inscricoes.find(i=>i.id===id);
+const vinc = (e,c) => S.vinculos.find(v=>v.empId===e&&v.criId===c);
+const insDaEmp = e => S.inscricoes.filter(i=>camp(i.campId)?.empId===e);
+
+function ptsIns(i){
+  if(i.status!=="aprovado"||i.etapa<7)return 0;
+  const c=camp(i.campId),p=emp(c.empId).pts;
+  return p.video+(c.modelo==="missao"?p.missao:0)+(i.publicado?p.publicado:0)+(i.ads?p.ads:0)+(i.campeao?p.campeao:0);
+}
+function ganhos(e,c){const v=vinc(e,c);return insDaEmp(e).filter(i=>i.criId===c).reduce((a,i)=>a+ptsIns(i),0)+(v?v.vendas*emp(e).pts.venda:0);}
+function gastos(e,c){return S.resgates.filter(r=>r.empId===e&&r.criId===c).reduce((a,r)=>a+r.custo,0);}
+function nivel(p){let k=0;NIVEIS.forEach((n,i)=>{if(p>=n.min)k=i});const cur=NIVEIS[k],nx=NIVEIS[k+1];return {cur,nx,pct:nx?Math.round((p-cur.min)/(nx.min-cur.min)*100):100};}
+function vagasUsadas(c){return S.inscricoes.filter(i=>i.campId===c.id&&i.status==="aprovado").length;}
+function encaixa(c,cr){
+  const motivos=[];
+  if(c.nichos.length&&!c.nichos.includes(cr.nicho))motivos.push("nicho");
+  if(c.cidades.length&&!c.cidades.includes(cr.cidade))motivos.push("cidade");
+  if(c.minSeg&&cr.seguidores<c.minSeg)motivos.push("seguidores");
+  return motivos;
+}
+function recompensaTxt(c){
+  const p=[];if(c.dinheiro)p.push(brl(c.dinheiro));if(c.permuta)p.push(c.permuta);
+  const e=emp(c.empId);p.push(`+${e.pts.video+(c.modelo==="missao"?e.pts.missao:0)} pts`);
+  return p.join(" + ");
+}
+function acoesEmpresa(e){return insDaEmp(e).filter(i=>i.status==="pendente"&&camp(i.campId).status==="ativa"||(i.status==="aprovado"&&QUEM[i.etapa]==="empresa"));}
+function acoesCriador(c){return S.inscricoes.filter(i=>i.criId===c&&i.status==="aprovado"&&QUEM[i.etapa]==="criador");}
+
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),2600);}
+
+/* ================= Briefing automático ================= */
+const GANCHOS = {
+  "Vídeos para anúncios":["“Ninguém me contou isso sobre {p}”","“Testei por uma semana e…”","“O que eu faço quando não tenho tempo”"],
+  "Divulgação no perfil dos criadores":["“Uma coisa que mudou minha rotina”","“Vem comigo no meu dia”","“Achei e não largo mais”"],
+  "Lançamento de produto":["“Chegou e eu fui a primeira a provar”","“Novidade: vale a pena?”","“Primeira impressão sincera”"],
+  "Levar clientes à loja física":["“Fui lá conferir pessoalmente”","“Esse lugar aqui na cidade…”","“Te levo comigo até a loja”"]
+};
+function gerarBriefing(d,v){
+  const g=(GANCHOS[d.objetivo]||GANCHOS[OBJETIVOS[0]]);const gancho=g[(v||0)%g.length].replace("{p}","isso");
+  return `Objetivo: ${d.objetivo||OBJETIVOS[0]}.
+Produto: ${d.produto||"—"}
+Formato: vídeo vertical de ${d.duracao||"30s"}, ${(TIPOS[d.tipo]||TIPOS.ugc).toLowerCase()}.
+Tom: ${(d.tom||"Descontraído").toLowerCase()}, falando com a câmera como se fosse com um amigo.
+
+Roteiro sugerido
+1. Gancho nos 3 primeiros segundos: ${gancho}.
+2. Mostre o produto em uso, na sua rotina real.
+3. Fale do principal benefício com as suas palavras.
+4. Termine com um convite: “link na bio” ou o seu cupom.
+${d.mostrar?`\nPrecisa aparecer: ${d.mostrar}`:""}${d.evitar?`\nEvite: ${d.evitar}`:""}
+
+Entrega: arquivo em boa luz, áudio limpo, sem música e sem legenda (a marca adiciona).`;
+}
+
+/* ================= Componentes compartilhados ================= */
+function rankingHTML(e,city,me){
+  const lista=S.vinculos.filter(v=>v.empId===e&&v.fixo).map(v=>({...cri(v.criId),pts:ganhos(e,v.criId)})).filter(x=>city==="todas"||x.cidade===city).sort((a,b)=>b.pts-a.pts);
+  const pod=(p,cls,n)=>p?`<div class="pod ${cls}"><div class="pn">${esc(p.nome.split(" ")[0])}</div><div class="pp">${p.pts} pts</div><div class="blk">${n}</div></div>`:`<div></div>`;
+  const E=emp(e);
+  return `<section class="panel"><div class="ph"><h2>Ranking do time</h2>
+    <select data-change="rankCity" style="width:auto" aria-label="Filtrar cidade"><option value="todas">Todas as cidades</option>${E.cidades.map(c=>`<option ${c===city?"selected":""}>${esc(c)}</option>`).join("")}</select></div>
+    ${lista.length?`<div class="podium">${pod(lista[1],"p2",2)}${pod(lista[0],"p1",1)}${pod(lista[2],"p3",3)}</div>
+    <ol class="rank">${lista.map((p,i)=>`<li class="${p.id===me?"me":""}"><span class="pos">${i+1}</span>${avatar(p.nome,"2rem")}<span class="n">${esc(p.nome)}${p.id===me?" (você)":""}<small>${esc(p.cidade)} · ${nivel(p.pts).cur.nome}</small></span><b class="num">${p.pts}</b></li>`).join("")}</ol>`:`<p class="empty">Ninguém do time nessa cidade ainda.</p>`}
+  </section>`;
+}
+function cidadesHTML(e){
+  const E=emp(e);
+  const rows=E.cidades.map(c=>{const m=S.vinculos.filter(v=>v.empId===e&&v.fixo&&cri(v.criId).cidade===c);const t=m.reduce((a,v)=>a+ganhos(e,v.criId),0);return {c,n:m.length,t,med:m.length?Math.round(t/m.length):0};}).sort((a,b)=>b.med-a.med);
+  if(rows.length<2)return "";
+  return `<section class="panel"><h2>Disputa entre cidades</h2><p class="small muted" style="margin:.2rem 0 .6rem">Média de pontos por criador. A cidade campeã do mês ganha um prêmio para o time todo.</p>
+    <ol class="rank">${rows.map((r,i)=>`<li><span class="pos">${i+1}</span><span class="n">${esc(r.c)}<small>${r.n} criadores · ${r.t} pts no total</small></span><b class="num">${r.med}</b></li>`).join("")}</ol></section>`;
+}
+function trackHTML(i){
+  const c=camp(i.campId);const ini=c.modelo==="missao"?4:0;
+  return `<div class="track" aria-label="Etapa ${i.etapa-ini+1} de ${8-ini}">${ETAPAS.slice(ini).map((_,k)=>`<i class="${k+ini<i.etapa?"done":k+ini===i.etapa?(i.etapa===7?"done":"now"):""}"></i>`).join("")}</div>`;
+}
+function resultChips(i){
+  const c=[];
+  if(i.publicado)c.push(`<span class="chip">Publicado</span>`);
+  if(i.ads)c.push(`<span class="chip ok">Em anúncio</span>`);
+  if(i.campeao)c.push(`<span class="chip star">Campeão</span>`);
+  return c.join("");
+}
+
+/* ================= EMPRESA ================= */
+function vEmpresa(){
+  const E=emp(S.ui.empId)||S.empresas[0];S.ui.empId=E.id;
+  const nAcoes=acoesEmpresa(E.id).length;
+  const tabs=[["inicio","Início"],["campanhas","Campanhas"],["producao","Produção",nAcoes],["time","Time fixo"],["criadores","Criadores"],["mensagens","Mensagens"],["marca","Marca e regras"]];
+  const views={inicio:eInicio,campanhas:eCampanhas,producao:eProducao,time:eTime,criadores:eCriadores,mensagens:eMensagens,marca:eMarca};
+  return `<div class="ctx"><span class="small muted">Empresa</span>${sig(E)}
+    <select data-change="empId" aria-label="Escolher empresa">${S.empresas.map(e=>`<option value="${e.id}" ${e.id===E.id?"selected":""}>${esc(e.nome)}</option>`).join("")}</select>
+    <span class="chip grey">Plano ${PLANOS[E.plano].nome}</span></div>
+  <nav class="tabs" role="tablist">${tabs.map(([k,l,n])=>`<button role="tab" aria-selected="${S.ui.tabE===k}" data-action="tabE" data-v="${k}">${l}${n?`<span class="count">${n}</span>`:""}</button>`).join("")}</nav>
+  ${(views[S.ui.tabE]||eInicio)(E)}`;
+}
+
+function eInicio(E){
+  const is=insDaEmp(E.id),ap=is.filter(i=>i.status==="aprovado");
+  const feitos=ap.filter(i=>i.etapa===7),ads=feitos.filter(i=>i.ads),camp_=feitos.filter(i=>i.campeao);
+  const vendas=S.vinculos.filter(v=>v.empId===E.id).reduce((a,v)=>a+v.vendas,0);
+  const gasto=feitos.reduce((a,i)=>a+(camp(i.campId).dinheiro||0),0);
+  const acoes=acoesEmpresa(E.id).sort((a,b)=>new Date(a.mov)-new Date(b.mov));
+  const ativas=S.campanhas.filter(c=>c.empId===E.id&&c.status==="ativa").length;
+  const fun=[["Inscrições",is.length],["Aprovados",ap.length],["Vídeos entregues",feitos.length],["Em anúncio",ads.length],["Campeões",camp_.length],["Vendas por cupom",vendas]];
+  const max=Math.max(...fun.map(f=>f[1]),1);
+  const txtAcao=i=>i.status==="pendente"?"Nova inscrição para avaliar":({0:"Enviar o produto",3:"Aprovar roteiro",5:"Aprovar vídeo",6:"Recompensar e avaliar"})[i.etapa];
+  return `<div class="kpis">
+    <div class="kpi ${acoes.length?"hot":""}"><b>${acoes.length}</b><span>itens esperando você</span></div>
+    <div class="kpi"><b>${ativas}</b><span>campanhas ativas</span></div>
+    <div class="kpi"><b>${feitos.length}</b><span>vídeos entregues</span></div>
+    <div class="kpi"><b>${ads.length}</b><span>vídeos em anúncio</span></div>
+    <div class="kpi"><b>${fmtN(vendas)}</b><span>vendas pelos cupons</span></div>
+    <div class="kpi"><b>${feitos.length?brl(Math.round(gasto/feitos.length)):"—"}</b><span>custo médio por vídeo</span></div>
+  </div>
+  <div class="grid2">
+    <section class="panel"><div class="ph"><h2>Precisa de você</h2><span class="small muted">mais antigos primeiro</span></div>
+      ${acoes.length?acoes.slice(0,7).map(i=>{const c=cri(i.criId),k=camp(i.campId);return `<div class="item">${avatar(c.nome)}<div class="body"><div class="title">${esc(txtAcao(i))}</div>
+        <div class="small muted">${esc(c.nome)} · ${esc(k.titulo)} · há ${dias(i.mov)} dia(s)</div></div>
+        <button class="btn sm line" data-action="${i.status==="pendente"?"abrirCamp":"abrirEtapa"}" data-v="${i.status==="pendente"?k.id:i.etapa}">Abrir</button></div>`}).join(""):`<p class="empty">Nada pendente. Tudo em dia.</p>`}
+    </section>
+    <section class="panel"><h2>Do convite à venda</h2><p class="small muted" style="margin:.2rem 0 .8rem">Todas as campanhas e missões.</p>
+      <div class="funnel">${fun.map(([l,n])=>`<div class="fr"><span>${l}</span><div class="bar"><i style="width:${Math.round(n/max*100)}%"></i></div><b>${fmtN(n)}</b></div>`).join("")}</div>
+      <p class="note" style="margin-top:.9rem">O concorrente acompanha até o vídeo entregue. Aqui você vê também o que foi para anúncio, o que virou campeão e quanto vendeu.</p>
+    </section>
+  </div>
+  <section class="panel" style="margin-top:1rem"><h2>Criativos campeões</h2><p class="small muted" style="margin:.2rem 0 .6rem">Os vídeos que mais venderam nos anúncios.</p>
+    ${camp_.length?camp_.map(i=>`<div class="item">${avatar(cri(i.criId).nome)}<div class="body"><div class="title">${esc(cri(i.criId).nome)}</div><div class="small muted">${esc(camp(i.campId).titulo)}</div></div><a class="btn sm line" href="${esc(i.video)}" target="_blank" rel="noopener">Ver vídeo</a></div>`).join(""):`<p class="empty">Marque um vídeo como campeão na etapa Concluído.</p>`}
+  </section>`;
+}
+
+/* ---- Campanhas ---- */
+function eCampanhas(E){
+  if(S.ui.wiz)return wizard(E);
+  if(S.ui.campId&&camp(S.ui.campId)?.empId===E.id)return campDetalhe(E,camp(S.ui.campId));
+  const cs=S.campanhas.filter(c=>c.empId===E.id).sort((a,b)=>(a.status!=="ativa")-(b.status!=="ativa")||new Date(b.criada)-new Date(a.criada));
+  return `<div class="ph"><h2>Campanhas e missões</h2><div class="row"><button class="btn line" data-action="novaCamp" data-v="missao">Nova missão do time</button><button class="btn alt" data-action="novaCamp" data-v="aberta">Criar campanha</button></div></div>
+  <div class="stack">${cs.map(c=>{const ii=S.inscricoes.filter(i=>i.campId===c.id);const pend=ii.filter(i=>i.status==="pendente").length;const us=vagasUsadas(c);
+    return `<section class="panel"><div class="row between" style="align-items:flex-start"><div class="body">
+      <div class="chips" style="margin:0 0 .3rem"><span class="chip ${c.modelo==="missao"?"wait":""}">${c.modelo==="missao"?"Missão do time":"Campanha aberta"}</span><span class="chip ${c.status==="ativa"?"ok":"grey"}">${c.status==="ativa"?"Ativa":"Encerrada"}</span>${pend?`<span class="chip wait">${pend} nova(s) inscrição(ões)</span>`:""}</div>
+      <h3>${esc(c.titulo)}</h3>
+      <p class="small muted" style="margin-top:.2rem">${esc(recompensaTxt(c))}${c.prazo?` · prazo ${esc(c.prazo)}`:""}${c.modelo==="aberta"?` · ${us} de ${c.vagas} vagas preenchidas`:` · ${ii.length} participando`}</p></div>
+      <div class="row"><button class="btn sm" data-action="abrirCamp" data-v="${c.id}">${c.modelo==="missao"?"Ver participantes":"Ver inscritos"}</button>
+      <button class="btn sm line" data-action="toggleCamp" data-v="${c.id}">${c.status==="ativa"?"Encerrar":"Reativar"}</button></div></div></section>`}).join("")||`<p class="panel empty">Nenhuma campanha ainda.</p>`}</div>`;
+}
+function campDetalhe(E,c){
+  const f=S.ui.fil;const us=vagasUsadas(c);
+  let ii=S.inscricoes.filter(i=>i.campId===c.id);
+  ii=ii.filter(i=>{const cr=cri(i.criId);return (!f.q||semAcento(cr.nome.toLowerCase()).includes(semAcento(f.q.toLowerCase())))&&(!f.status||f.status===(i.status==="aprovado"?"aprovado":i.status))&&(!f.nicho||cr.nicho===f.nicho)&&(!f.cidade||cr.cidade===f.cidade)&&(!f.fav||i.fav);});
+  ii.sort((a,b)=>({pendente:0,aprovado:1,recusado:2}[a.status]-{pendente:0,aprovado:1,recusado:2}[b.status])||new Date(a.data)-new Date(b.data));
+  const cidades=[...new Set(S.inscricoes.filter(i=>i.campId===c.id).map(i=>cri(i.criId).cidade))];
+  return `<button class="btn sm line" data-action="voltarCamps">← Campanhas</button>
+  <div class="ph" style="margin-top:.8rem"><div><h2>${esc(c.titulo)}</h2><p class="small muted">${esc(recompensaTxt(c))}</p></div>
+    ${c.modelo==="aberta"?`<span class="chip ${us>=c.vagas?"no":"wait"}" style="font-size:.85rem">${Math.max(0,c.vagas-us)} vagas restantes</span>`:""}</div>
+  <details class="panel" style="margin-bottom:1rem"><summary>Briefing e requisitos</summary>
+    <div class="quote" style="margin-top:.7rem">${esc(c.briefing)}</div>
+    <p class="small muted" style="margin-top:.6rem">Nichos: ${esc(c.nichos.join(", ")||"todos")} · Cidades: ${esc(c.cidades.join(", ")||"todas")} · Mínimo de ${fmtN(c.minSeg)} seguidores</p></details>
+  <section class="panel">
+    <div class="cols2" style="margin-bottom:1rem">
+      <div class="field"><label for="f-q">Nome</label><input id="f-q" data-fil="q" value="${esc(f.q||"")}" placeholder="Buscar criador"></div>
+      <div class="field"><label for="f-st">Status</label><select id="f-st" data-fil="status"><option value="">Todos</option>${["pendente","aprovado","recusado"].map(s=>`<option value="${s}" ${f.status===s?"selected":""}>${s[0].toUpperCase()+s.slice(1)}</option>`).join("")}</select></div>
+      <div class="field"><label for="f-ni">Nicho</label><select id="f-ni" data-fil="nicho"><option value="">Todos</option>${NICHOS.map(n=>`<option ${f.nicho===n?"selected":""}>${n}</option>`).join("")}</select></div>
+      <div class="field"><label for="f-ci">Cidade</label><select id="f-ci" data-fil="cidade"><option value="">Todas</option>${cidades.map(n=>`<option ${f.cidade===n?"selected":""}>${esc(n)}</option>`).join("")}</select></div>
+    </div>
+    <label class="row small" style="font-weight:500;margin-bottom:.8rem"><input type="checkbox" data-fil="fav" ${f.fav?"checked":""}> Só favoritos</label>
+    ${ii.length?ii.map(i=>{const cr=cri(i.criId);const mot=encaixa(c,cr);return `<div class="item">${avatar(cr.nome)}<div class="body">
+      <div class="row" style="gap:.4rem"><span class="title">${esc(cr.nome)}</span><span class="small muted">${esc(cr.insta)} · ${fmtD(i.data)}</span></div>
+      <div class="chips"><span class="chip grey">${esc(cr.nicho)}</span><span class="chip grey">${esc(cr.cidade)}</span><span class="chip grey">${kseg(cr.seguidores)} seguidores</span>
+        ${i.status==="pendente"?`<span class="chip wait">Pendente</span>`:i.status==="recusado"?`<span class="chip no">Recusado</span>`:`<span class="chip ok">${esc(ETAPAS[i.etapa])}</span>`}
+        ${mot.length&&i.status==="pendente"?`<span class="chip no">Fora do perfil: ${mot.join(", ")}</span>`:""}</div>
+      ${i.pitch?`<p class="pitch">“${esc(i.pitch)}”</p>`:""}
+      ${i.status==="pendente"?`<div class="actions"><button class="btn sm" data-action="aprovarIns" data-v="${i.id}" ${c.modelo==="aberta"&&us>=c.vagas?"disabled":""}>Aprovar</button><button class="btn sm danger" data-action="recusarIns" data-v="${i.id}">Recusar</button></div>`:""}
+    </div><button class="icon-btn" data-action="fav" data-v="${i.id}" aria-pressed="${i.fav}" aria-label="Favoritar">${i.fav?"★":"☆"}</button></div>`}).join(""):`<p class="empty">Nenhum inscrito com esses filtros.</p>`}
+  </section>`;
+}
+
+/* ---- Wizard de campanha ---- */
+const PASSOS=["Produto","Formato","Marca","Quem participa","Recompensa","Briefing","Revisar"];
+function wizard(E){
+  const w=S.ui.wiz,d=w.d,s=w.step;const missao=d.modelo==="missao";
+  const passos=missao?PASSOS.filter(p=>p!=="Quem participa"):PASSOS;
+  const nome=passos[s];
+  let body="";
+  if(nome==="Produto")body=`<h2>Vamos começar</h2><p class="muted small" style="margin:.2rem 0 1rem">Em 2 minutos o briefing fica pronto.</p>
+    <div class="field"><label for="w-produto">O que vai ser divulgado?</label><textarea id="w-produto" name="produto" required placeholder="Ex.: marmitas fitness congeladas, prontas em 5 minutos">${esc(d.produto)}</textarea></div>
+    <div class="field"><label for="w-obj">Objetivo</label><select id="w-obj" name="objetivo">${OBJETIVOS.map(o=>`<option ${d.objetivo===o?"selected":""}>${o}</option>`).join("")}</select></div>
+    <div class="field"><label>Briefing</label><div class="choices big">
+      <label><b><input type="radio" name="bmodo" value="auto" ${d.bmodo!=="proprio"?"checked":""}>Quero um briefing pronto</b><span>A plataforma escreve e você ajusta</span></label>
+      <label><b><input type="radio" name="bmodo" value="proprio" ${d.bmodo==="proprio"?"checked":""}>Já tenho o meu</b><span>Você cola o seu briefing</span></label></div></div>`;
+  if(nome==="Formato")body=`<h2>Nome e formato</h2>
+    <div class="field" style="margin-top:1rem"><label for="w-tit">Nome da campanha</label><input id="w-tit" name="titulo" required value="${esc(d.titulo)}" placeholder="Ex.: Marmita no pós-treino"></div>
+    <div class="field"><label>Tipo</label><div class="choices big">
+      <label><b><input type="radio" name="modelo" value="aberta" ${!missao?"checked":""}>Campanha aberta</b><span>Criadores se candidatam e você escolhe</span></label>
+      <label><b><input type="radio" name="modelo" value="missao" ${missao?"checked":""}>Missão do time</b><span>Vai direto para o seu time fixo, sem candidatura</span></label></div></div>
+    <div class="field"><label>Uso do vídeo</label><div class="choices">${Object.entries(TIPOS).map(([k,l])=>`<label><input type="radio" name="tipo" value="${k}" ${d.tipo===k?"checked":""}>${l}</label>`).join("")}</div></div>
+    <div class="field"><label for="w-dur">Duração</label><select id="w-dur" name="duracao" style="width:auto">${["15s","30s","60s"].map(x=>`<option ${d.duracao===x?"selected":""}>${x}</option>`).join("")}</select></div>`;
+  if(nome==="Marca")body=`<h2>Jeito da marca</h2>
+    <div class="field" style="margin-top:1rem"><label for="w-tom">Tom do vídeo</label><select id="w-tom" name="tom">${["Descontraído","Inspirador","Didático","Engraçado"].map(x=>`<option ${d.tom===x?"selected":""}>${x}</option>`).join("")}</select></div>
+    <div class="field"><label for="w-mos">O que precisa aparecer</label><textarea id="w-mos" name="mostrar" placeholder="Ex.: o rótulo por 2 segundos, o produto em uso">${esc(d.mostrar)}</textarea></div>
+    <div class="field"><label for="w-evi">O que evitar</label><textarea id="w-evi" name="evitar" placeholder="Ex.: falar de preço, citar concorrentes">${esc(d.evitar)}</textarea></div>`;
+  if(nome==="Quem participa")body=`<h2>Quem pode participar</h2>
+    <div class="field" style="margin-top:1rem"><label>Nichos</label><div class="choices">${NICHOS.map(n=>`<label><input type="checkbox" name="nichos" value="${n}" ${d.nichos.includes(n)?"checked":""}>${n}</label>`).join("")}</div><p class="hint">Nenhum marcado = todos.</p></div>
+    <div class="field"><label>Cidades</label><div class="choices">${E.cidades.map(n=>`<label><input type="checkbox" name="cidades" value="${esc(n)}" ${d.cidades.includes(n)?"checked":""}>${esc(n)}</label>`).join("")}</div><p class="hint">Nenhuma marcada = qualquer cidade.</p></div>
+    <div class="cols2" style="margin-top:.85rem"><div class="field"><label for="w-min">Mínimo de seguidores</label><input id="w-min" name="minSeg" type="number" min="0" step="500" value="${d.minSeg}"></div>
+    <div class="field"><label for="w-vag">Vagas</label><input id="w-vag" name="vagas" type="number" min="1" value="${d.vagas}"></div></div>`;
+  if(nome==="Recompensa")body=`<h2>Recompensa</h2><p class="muted small" style="margin:.2rem 0 1rem">Combine dinheiro, produto e pontos como quiser.</p>
+    <div class="cols2"><div class="field"><label for="w-din">Valor em dinheiro (R$)</label><input id="w-din" name="dinheiro" type="number" min="0" step="10" value="${d.dinheiro}"></div>
+    <div class="field"><label for="w-per">Produto (permuta)</label><input id="w-per" name="permuta" value="${esc(d.permuta)}" placeholder="Ex.: kit 10 marmitas"></div>
+    <div class="field"><label for="w-pra">Prazo</label><input id="w-pra" name="prazo" value="${esc(d.prazo)}" placeholder="Ex.: 30/10"></div></div>
+    <p class="note" style="margin-top:1rem">Pontos automáticos: +${E.pts.video} por vídeo aprovado${missao?`, +${E.pts.missao} por ser missão`:""}, +${E.pts.publicado} se publicar, +${E.pts.ads} se for para anúncio e +${E.pts.campeao} se virar campeão. Ajuste em Marca e regras.</p>`;
+  if(nome==="Briefing")body=`<h2>Briefing</h2><p class="muted small" style="margin:.2rem 0 1rem">${d.bmodo==="proprio"?"Cole o seu briefing.":"Sugestão montada a partir das suas respostas. Edite à vontade."}</p>
+    <div class="field"><label for="w-bri">Texto que os criadores vão ver</label><textarea id="w-bri" name="briefing" style="min-height:300px">${esc(d.briefing)}</textarea></div>
+    ${d.bmodo!=="proprio"?`<div class="actions"><button type="button" class="btn sm line" data-action="wizGerar">Gerar outra versão</button></div><p class="hint">No protótipo o briefing vem de um modelo. Na versão final, uma IA escreve a partir das respostas.</p>`:""}`;
+  if(nome==="Revisar")body=`<h2>Revisar e publicar</h2>
+    <div class="stack" style="margin-top:1rem">
+    <p><b>${esc(d.titulo)}</b> · ${missao?"Missão do time":"Campanha aberta"} · ${esc(TIPOS[d.tipo])} · ${esc(d.duracao)}</p>
+    <p class="small">Recompensa: ${esc(recompensaTxt({...d,empId:E.id}))}${d.prazo?` · prazo ${esc(d.prazo)}`:""}</p>
+    ${missao?`<p class="small">Vai para ${S.vinculos.filter(v=>v.empId===E.id&&v.fixo).length} criadores do time fixo.</p>`:`<p class="small">Nichos: ${esc(d.nichos.join(", ")||"todos")} · Cidades: ${esc(d.cidades.join(", ")||"todas")} · ${d.vagas} vagas · mínimo ${fmtN(d.minSeg)} seguidores</p>`}
+    <div class="quote">${esc(d.briefing)}</div></div>`;
+  return `<button class="btn sm line" data-action="wizCancel">← Cancelar</button>
+  <div class="steps" style="margin-top:.8rem">${passos.map((p,k)=>`<span class="${k===s?"on":k<s?"done":""}">${k+1}. ${p}</span>`).join("")}</div>
+  <form class="panel" data-form="wiz" novalidate>${body}
+    <div class="row between" style="margin-top:1.2rem"><button type="button" class="btn line" data-action="wizBack" ${s===0?"disabled":""}>Voltar</button>
+    <button class="btn ${nome==="Revisar"?"alt":""}" type="submit">${nome==="Revisar"?(missao?"Publicar missão":"Publicar campanha"):"Avançar"}</button></div></form>`;
+}
+function lerWiz(form){
+  const d=S.ui.wiz.d;const fd=new FormData(form);
+  ["produto","objetivo","bmodo","titulo","modelo","tipo","duracao","tom","mostrar","evitar","permuta","prazo","briefing"].forEach(k=>{if(fd.has(k))d[k]=String(fd.get(k)).trim();});
+  ["minSeg","vagas","dinheiro"].forEach(k=>{if(fd.has(k))d[k]=Math.max(0,parseInt(fd.get(k),10)||0);});
+  if(form.querySelector('[name="nichos"]'))d.nichos=fd.getAll("nichos");
+  if(form.querySelector('[name="cidades"]'))d.cidades=fd.getAll("cidades");
+}
+
+/* ---- Produção (CRM) ---- */
+function eProducao(E){
+  const fc=S.ui.crmCamp;
+  const base=insDaEmp(E.id).filter(i=>i.status==="aprovado"&&(fc==="todas"||i.campId===fc));
+  const cont=ETAPAS.map((_,k)=>base.filter(i=>i.etapa===k).length);
+  if(S.ui.etapa===null||S.ui.etapa===undefined){const k=ETAPAS.findIndex((_,k)=>QUEM[k]==="empresa"&&cont[k]);S.ui.etapa=k<0?0:k;}
+  const et=S.ui.etapa;const lista=base.filter(i=>i.etapa===et).sort((a,b)=>new Date(a.mov)-new Date(b.mov));
+  const quem=QUEM[et]==="empresa"?"Etapa com você":QUEM[et]==="criador"?"Etapa com o criador":"Vídeos prontos: marque o resultado";
+  return `<div class="ph"><div><h2>Produção</h2><p class="small muted">Cada criador aprovado passa por estas etapas até o vídeo virar resultado.</p></div>
+    <select data-change="crmCamp" style="width:auto" aria-label="Filtrar por campanha"><option value="todas">Todas as campanhas</option>${S.campanhas.filter(c=>c.empId===E.id).map(c=>`<option value="${c.id}" ${fc===c.id?"selected":""}>${esc(c.titulo)}</option>`).join("")}</select></div>
+  <div class="stages" role="group" aria-label="Etapas">${ETAPAS.map((n,k)=>`<button data-action="etapa" data-v="${k}" aria-pressed="${k===et}" class="${QUEM[k]==="empresa"&&cont[k]?"you":""}">${n}<span class="n">${cont[k]}</span></button>`).join("")}</div>
+  <p class="who">${quem}. Os números em laranja são etapas esperando você.</p>
+  <section class="panel">${lista.length?lista.map(i=>cardProd(E,i)).join(""):`<p class="empty">Ninguém nesta etapa.</p>`}</section>
+  <div class="actions" style="margin-top:.8rem"><button class="btn sm line" data-action="msgEtapa">Mandar mensagem para esta etapa</button></div>`;
+}
+function cardProd(E,i){
+  const c=cri(i.criId),k=camp(i.campId);let acao="";
+  const aj=S.ui.ajuste===i.id;
+  const formAjuste=`<form data-form="ajuste" data-v="${i.id}" class="field" style="margin-top:.6rem"><label for="aj-${i.id}">O que precisa mudar?</label><textarea id="aj-${i.id}" name="ajuste" required placeholder="Seja específico: o criador vai ver exatamente isto"></textarea>
+    <div class="actions"><button class="btn sm alt">Enviar pedido de ajuste</button><button type="button" class="btn sm line" data-action="ajusteOff">Cancelar</button></div></form>`;
+  if(i.etapa===0)acao=`<p class="small muted" style="margin-top:.4rem">${k.permuta?`Enviar: <b>${esc(k.permuta)}</b> para ${esc(c.cidade)}.`:"Esta campanha não tem produto para enviar."}</p>
+    <div class="actions"><button class="btn sm" data-action="avancar" data-v="${i.id}" data-to="${k.permuta?1:2}">${k.permuta?"Marcar produto enviado":"Liberar roteiro"}</button></div>`;
+  if(i.etapa===1)acao=`<p class="small muted" style="margin-top:.4rem">Aguardando o criador confirmar o recebimento.</p><div class="actions"><button class="btn sm line" data-action="lembrar" data-v="${i.id}">Lembrar criador</button></div>`;
+  if(i.etapa===2)acao=`${i.ajuste?`<div class="quote warn">Ajuste pedido: ${esc(i.ajuste)}</div>`:""}<p class="small muted" style="margin-top:.4rem">O criador está escrevendo o roteiro.</p><div class="actions"><button class="btn sm line" data-action="lembrar" data-v="${i.id}">Lembrar criador</button></div>`;
+  if(i.etapa===3)acao=`<div class="quote">${esc(i.roteiro)}</div>${aj?formAjuste:`<div class="actions"><button class="btn sm" data-action="avancar" data-v="${i.id}" data-to="4">Aprovar roteiro</button><button class="btn sm line" data-action="ajusteOn" data-v="${i.id}">Pedir ajuste</button></div>`}`;
+  if(i.etapa===4)acao=`${i.ajuste?`<div class="quote warn">Ajuste pedido: ${esc(i.ajuste)}</div>`:""}<p class="small muted" style="margin-top:.4rem">Em gravação.</p><div class="actions"><button class="btn sm line" data-action="lembrar" data-v="${i.id}">Lembrar criador</button></div>`;
+  if(i.etapa===5)acao=`<div class="actions"><a class="btn sm line" href="${esc(i.video)}" target="_blank" rel="noopener">Assistir vídeo</a></div>${aj?formAjuste:`<div class="actions"><button class="btn sm" data-action="avancar" data-v="${i.id}" data-to="6">Aprovar vídeo</button><button class="btn sm line" data-action="ajusteOn" data-v="${i.id}">Pedir ajuste</button></div>`}`;
+  if(i.etapa===6)acao=`<p class="small" style="margin-top:.45rem">Recompensa: <b>${esc(recompensaTxt(k))}</b>${k.dinheiro?` · Pix para ${esc(c.insta)}`:""}</p>
+    <div class="row small" style="margin-top:.4rem">Avalie o criador: <span class="stars">${[1,2,3,4,5].map(n=>`<button data-action="nota" data-v="${i.id}" data-n="${n}" class="${n<=i.nota?"on":""}" aria-label="${n} estrelas">★</button>`).join("")}</span></div>
+    <div class="actions"><button class="btn sm alt" data-action="concluir" data-v="${i.id}" ${i.nota?"":"disabled"}>${k.dinheiro?"Pagar e concluir":"Concluir"}</button></div>${i.nota?"":`<p class="hint">Dê uma nota para concluir.</p>`}`;
+  if(i.etapa===7)acao=`<div class="row small" style="margin-top:.5rem;gap:1rem">
+    <label class="row" style="font-weight:500;margin:0"><input type="checkbox" data-change="flag" data-f="publicado" data-v="${i.id}" ${i.publicado?"checked":""}> Publicado (+${E.pts.publicado})</label>
+    <label class="row" style="font-weight:500;margin:0"><input type="checkbox" data-change="flag" data-f="ads" data-v="${i.id}" ${i.ads?"checked":""}> Em anúncio (+${E.pts.ads})</label>
+    <label class="row" style="font-weight:500;margin:0"><input type="checkbox" data-change="flag" data-f="campeao" data-v="${i.id}" ${i.campeao?"checked":""}> Campeão (+${E.pts.campeao})</label></div>
+    <div class="row small muted" style="margin-top:.35rem">${stars(i.nota)} · ${ptsIns(i)} pts para o criador ${i.video?`· <a href="${esc(i.video)}" target="_blank" rel="noopener">ver vídeo</a>`:""}</div>`;
+  return `<div class="item">${avatar(c.nome)}<div class="body"><div class="row" style="gap:.4rem"><span class="title">${esc(c.nome)}</span><span class="small muted">${esc(c.cidade)}</span></div>
+    <div class="small muted">${esc(k.titulo)} · nesta etapa há ${dias(i.mov)} dia(s)</div>${trackHTML(i)}${acao}</div></div>`;
+}
+
+/* ---- Time fixo ---- */
+function eTime(E){
+  const sub=S.ui.timeSub;
+  const subs=[["ranking","Ranking"],["cupons","Vendas por cupom"],["trocas","Trocas de pontos",S.resgates.filter(r=>r.empId===E.id&&!r.entregue).length]];
+  let body="";
+  if(sub==="ranking")body=`<div class="grid2">${rankingHTML(E.id,S.ui.rankCity,null)}<div class="stack">${cidadesHTML(E.id)}
+    <section class="panel"><div class="ph"><h2>Missões ativas</h2><button class="btn sm alt" data-action="novaCamp" data-v="missao">Nova missão</button></div>
+    ${S.campanhas.filter(c=>c.empId===E.id&&c.modelo==="missao"&&c.status==="ativa").map(c=>`<div class="item"><div class="body"><div class="title">${esc(c.titulo)}</div><div class="small muted">${S.inscricoes.filter(i=>i.campId===c.id).length} participando · prazo ${esc(c.prazo||"—")}</div></div><button class="btn sm line" data-action="abrirCamp" data-v="${c.id}">Ver</button></div>`).join("")||`<p class="empty">Nenhuma missão ativa.</p>`}</section></div></div>`;
+  if(sub==="cupons"){const vs=S.vinculos.filter(v=>v.empId===E.id).sort((a,b)=>b.vendas-a.vendas);
+    body=`<section class="panel"><p class="small muted" style="margin-bottom:.8rem">Lance as vendas feitas com o cupom de cada criador. Cada venda vale ${E.pts.venda} pts. Na versão final, as vendas chegam sozinhas pela integração com a loja ou o PDV.</p>
+    <div class="tbl"><table><thead><tr><th>Criador</th><th>Cupom</th><th class="num">Vendas</th><th>Lançar</th></tr></thead><tbody>
+    ${vs.map(v=>{const c=cri(v.criId);return `<tr><td>${esc(c.nome)}<div class="small muted">${esc(c.cidade)}</div></td><td><code>${esc(v.cupom)}</code></td><td class="num"><b>${v.vendas}</b></td>
+    <td><div class="row" style="gap:.35rem;flex-wrap:nowrap"><input type="number" min="1" value="1" style="width:4.2rem" id="q-${v.id}" aria-label="Quantidade de vendas"><button class="btn sm" data-action="venda" data-v="${v.id}">Somar</button></div></td></tr>`}).join("")}</tbody></table></div></section>`;}
+  if(sub==="trocas"){const rs=S.resgates.filter(r=>r.empId===E.id).sort((a,b)=>(a.entregue-b.entregue)||new Date(b.data)-new Date(a.data));
+    body=`<div class="grid2"><section class="panel"><h2 style="margin-bottom:.6rem">Pedidos de troca</h2>${rs.length?rs.map(r=>{const c=cri(r.criId);return `<div class="item"><div class="body"><div class="title">${esc(r.nome)}</div><div class="small muted">${esc(c.nome)} · ${esc(c.cidade)} · ${fmtD(r.data)}</div></div>${r.entregue?`<span class="chip ok">Entregue</span>`:`<button class="btn sm" data-action="entregar" data-v="${r.id}">Marcar entregue</button>`}</div>`}).join(""):`<p class="empty">Nenhuma troca ainda.</p>`}</section>
+    <section class="panel"><h2 style="margin-bottom:.6rem">Recompensas oferecidas</h2><div class="shop">${E.recompensas.map(r=>`<div class="prod"><h3>${esc(r.nome)}</h3><p class="small muted">${esc(r.desc)}</p><div class="cost">${r.custo} pts</div></div>`).join("")}</div><p class="hint" style="margin-top:.6rem">Edite em Marca e regras.</p></section></div>`;}
+  return `<div class="seg" role="group" style="margin-bottom:1rem">${subs.map(([k,l,n])=>`<button data-action="timeSub" data-v="${k}" aria-pressed="${sub===k}">${l}${n?` (${n})`:""}</button>`).join("")}</div>${body}`;
+}
+
+/* ---- Criadores ---- */
+function eCriadores(E){
+  const vs=S.vinculos.filter(v=>v.empId===E.id).map(v=>{const c=cri(v.criId);const is=insDaEmp(E.id).filter(i=>i.criId===c.id&&i.etapa===7&&i.status==="aprovado");const notas=is.filter(i=>i.nota).map(i=>i.nota);
+    return {v,c,pts:ganhos(E.id,c.id),videos:is.length,nota:notas.length?Math.round(notas.reduce((a,b)=>a+b,0)/notas.length):0};}).sort((a,b)=>b.v.fixo-a.v.fixo||b.pts-a.pts);
+  return `<div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))">
+  <section class="panel"><div class="ph"><h2>Criadores</h2><span class="small muted">${vs.filter(x=>x.v.fixo).length} no time fixo · ${vs.length} no total</span></div>
+  <div class="tbl"><table><thead><tr><th>Criador</th><th>Nicho</th><th class="num">Seguidores</th><th class="num">Vídeos</th><th>Nota</th><th>Termo</th><th class="num">Pts</th><th>Time fixo</th></tr></thead><tbody>
+  ${vs.map(({v,c,pts,videos,nota})=>`<tr><td><div class="row" style="flex-wrap:nowrap">${avatar(c.nome,"2rem")}<div>${esc(c.nome)}<div class="small muted">${esc(c.insta)} · ${esc(c.cidade)}</div></div></div></td><td>${esc(c.nicho)}</td><td class="num">${kseg(c.seguidores)}</td><td class="num">${videos}</td><td>${stars(nota)||`<span class="muted">—</span>`}</td>
+  <td>${v.termoVersao>=E.termo.versao?`<span class="chip ok">v${v.termoVersao} · ${fmtD(v.termoData)}</span>`:v.termoVersao?`<span class="chip wait">v${v.termoVersao}: falta aceitar v${E.termo.versao}</span>`:`<span class="chip wait">Pendente</span>`}</td>
+  <td class="num"><b>${pts}</b></td><td><input type="checkbox" data-change="fixo" data-v="${v.id}" ${v.fixo?"checked":""} aria-label="No time fixo"></td></tr>`).join("")}</tbody></table></div></section>
+  <form class="panel" data-form="convite"><h2>Convidar criador</h2><p class="small muted" style="margin:.2rem 0 .9rem">Ele recebe um link, aceita o termo da ${esc(E.nome)} e já entra no time fixo.</p>
+    <div class="field"><label for="cv-nome">Nome</label><input id="cv-nome" name="nome" required></div>
+    <div class="field"><label for="cv-insta">Instagram ou TikTok</label><input id="cv-insta" name="insta" required placeholder="@usuario"></div>
+    <div class="cols2" style="margin-top:.85rem"><div class="field"><label for="cv-cid">Cidade</label><select id="cv-cid" name="cidade">${E.cidades.map(c=>`<option>${esc(c)}</option>`).join("")}</select></div>
+    <div class="field"><label for="cv-ni">Nicho</label><select id="cv-ni" name="nicho">${NICHOS.map(n=>`<option>${n}</option>`).join("")}</select></div></div>
+    <div class="actions" style="margin-top:1rem"><button class="btn">Gerar convite</button></div>
+    <div class="coupon" style="margin-top:1rem"><span class="small" style="overflow-wrap:anywhere">elenco.app/c/${esc(semAcento(E.nome).toLowerCase().replace(/\s+/g,"-"))}</span><button type="button" class="btn sm line" data-action="copy" data-v="elenco.app/c/${esc(semAcento(E.nome).toLowerCase().replace(/\s+/g,"-"))}">Copiar link</button></div>
+    <p class="hint">Link de cadastro aberto para divulgar na loja e nas redes.</p></form></div>`;
+}
+
+/* ---- Mensagens ---- */
+function eMensagens(E){
+  const ms=S.mensagens.filter(m=>m.empId===E.id).sort((a,b)=>new Date(b.data)-new Date(a.data));
+  const opts=[["time","Todo o time fixo"],...S.campanhas.filter(c=>c.empId===E.id&&c.status==="ativa").map(c=>["camp:"+c.id,"Aprovados: "+c.titulo]),...ETAPAS.slice(0,7).map((n,k)=>["etapa:"+k,"Quem está em: "+n])];
+  return `<div class="grid2"><form class="panel" data-form="msg"><h2>Nova mensagem</h2><p class="small muted" style="margin:.2rem 0 .9rem">Chega no app do criador e por WhatsApp na versão final.</p>
+    <div class="field"><label for="m-para">Para</label><select id="m-para" name="para">${opts.map(([v,l])=>`<option value="${esc(v)}" ${S.ui.msgPara===v?"selected":""}>${esc(l)}</option>`).join("")}</select></div>
+    <div class="field"><label for="m-txt">Mensagem</label><textarea id="m-txt" name="texto" required placeholder="Ex.: os kits saem amanhã, confirmem o endereço"></textarea></div>
+    <div class="actions" style="margin-top:1rem"><button class="btn">Enviar</button></div></form>
+  <section class="panel"><h2 style="margin-bottom:.6rem">Enviadas</h2>${ms.length?ms.map(m=>`<div class="item"><div class="body"><div class="small muted">${esc(m.para)} · ${m.criIds.length} criador(es) · ${fmtD(m.data)}</div><p style="margin-top:.2rem">${esc(m.texto)}</p></div></div>`).join(""):`<p class="empty">Nenhuma mensagem enviada.</p>`}</section></div>`;
+}
+
+/* ---- Marca e regras ---- */
+function eMarca(E){
+  const P=E.pts;const lbl={video:"Vídeo aprovado",missao:"Bônus de missão",publicado:"Publicado no perfil",ads:"Escolhido para anúncio",campeao:"Virou campeão",venda:"Cada venda com cupom"};
+  return `<div class="grid2">
+  <form class="panel" data-form="marca"><h2>Marca</h2>
+    <div class="field" style="margin-top:.9rem"><label for="mk-nome">Nome</label><input id="mk-nome" name="nome" value="${esc(E.nome)}" required></div>
+    <div class="cols2" style="margin-top:.85rem"><div class="field"><label for="mk-seg">Segmento</label><input id="mk-seg" name="segmento" value="${esc(E.segmento)}"></div>
+    <div class="field"><label for="mk-cor">Cor</label><input id="mk-cor" name="cor" type="color" value="${esc(E.cor)}"></div></div>
+    <div class="field"><label for="mk-cid">Cidades ou lojas</label><input id="mk-cid" name="cidades" value="${esc(E.cidades.join(", "))}"><p class="hint">Separe por vírgula.</p></div>
+    <h3 style="margin-top:1.2rem">Pontos</h3><div class="cols2" style="margin-top:.6rem">${Object.keys(lbl).map(k=>`<div class="field"><label for="pt-${k}">${lbl[k]}</label><input id="pt-${k}" name="pt_${k}" type="number" min="0" value="${P[k]}"></div>`).join("")}</div>
+    <div class="actions" style="margin-top:1rem"><button class="btn">Salvar</button></div></form>
+  <div class="stack">
+  <form class="panel" data-form="termo"><div class="ph"><h2>Termo de parceria</h2><span class="chip">Versão ${E.termo.versao} · ${fmtD(E.termo.data)}</span></div>
+    <div class="field"><label for="tm-txt">Texto que o criador aceita</label><textarea id="tm-txt" name="texto" style="min-height:220px">${esc(E.termo.texto)}</textarea></div>
+    <p class="hint">Ao publicar uma nova versão, quem aceitou a anterior precisa aceitar de novo. O aceite fica registrado com data e versão.</p>
+    <div class="actions"><button class="btn">Publicar nova versão</button></div></form>
+  <section class="panel"><h2 style="margin-bottom:.6rem">Recompensas</h2>
+    ${E.recompensas.map(r=>`<div class="item"><div class="body"><div class="title">${esc(r.nome)} · <span style="color:var(--accent)">${r.custo} pts</span></div><div class="small muted">${esc(r.desc)}</div></div><button class="btn sm danger" data-action="delRec" data-v="${r.id}">Remover</button></div>`).join("")}
+    <form data-form="rec" style="margin-top:1rem"><div class="cols2"><div class="field"><label for="rc-n">Nova recompensa</label><input id="rc-n" name="nome" required placeholder="Ex.: camiseta"></div><div class="field"><label for="rc-c">Pontos</label><input id="rc-c" name="custo" type="number" min="1" value="100"></div></div>
+    <div class="field" style="margin-top:.85rem"><label for="rc-d">Descrição</label><input id="rc-d" name="desc"></div><div class="actions"><button class="btn sm">Adicionar</button></div></form></section></div></div>`;
+}
+
+/* ================= CRIADOR ================= */
+function vCriador(){
+  const C=cri(S.ui.criId)||S.criadores[0];S.ui.criId=C.id;
+  const n=acoesCriador(C.id).length;
+  const tabs=[["inicio","Início"],["oport","Oportunidades"],["entregas","Minhas entregas",n],["loja","Trocar pontos"],["ranking","Ranking"]];
+  const views={inicio:cInicio,oport:cOport,entregas:cEntregas,loja:cLoja,ranking:cRanking};
+  return `<div style="max-width:720px;margin:0 auto"><div class="ctx"><span class="small muted">Vendo como</span>
+    <select data-change="criId" aria-label="Escolher criador">${S.criadores.map(c=>`<option value="${c.id}" ${c.id===C.id?"selected":""}>${esc(c.nome)}</option>`).join("")}</select></div>
+  <nav class="tabs" role="tablist">${tabs.map(([k,l,n])=>`<button role="tab" aria-selected="${S.ui.tabC===k}" data-action="tabC" data-v="${k}">${l}${n?`<span class="count">${n}</span>`:""}</button>`).join("")}</nav>
+  ${(views[S.ui.tabC]||cInicio)(C)}</div>`;
+}
+function cInicio(C){
+  const vs=S.vinculos.filter(v=>v.criId===C.id);
+  const acoes=acoesCriador(C.id);
+  const msgs=S.mensagens.filter(m=>m.criIds.includes(C.id)).sort((a,b)=>new Date(b.data)-new Date(a.data)).slice(0,4);
+  const txt={1:"Confirmar que recebeu o produto",2:"Enviar o roteiro",4:"Enviar o vídeo"};
+  return `<div class="stack"><section class="hero"><div class="nm">${esc(C.nome)}</div><div class="sub">${esc(C.insta)} · ${esc(C.cidade)} · ${esc(C.nicho)} · ${kseg(C.seguidores)} seguidores</div></section>
+  ${acoes.length?`<section class="panel"><h2 style="margin-bottom:.6rem">Sua vez</h2>${acoes.map(i=>{const k=camp(i.campId);return `<div class="item">${sig(emp(k.empId))}<div class="body"><div class="title">${txt[i.etapa]}</div><div class="small muted">${esc(k.titulo)}${k.prazo?` · prazo ${esc(k.prazo)}`:""}</div></div><button class="btn sm alt" data-action="tabC" data-v="entregas">Fazer agora</button></div>`}).join("")}</section>`:""}
+  <section><div class="ph"><h2>Suas marcas</h2></div>${vs.length?`<div class="bcards">${vs.map(v=>{const E=emp(v.empId),g=ganhos(E.id,C.id),sd=g-gastos(E.id,C.id),nv=nivel(g);
+    return `<div class="bcard"><div class="row between">${tagEmp(E)}<span class="chip ${v.fixo?"":"grey"}">${v.fixo?"Time fixo":"Participante"}</span></div>
+    <div class="row between" style="margin-top:.6rem;align-items:flex-end"><div><div class="pts">${sd}</div><div class="tiny muted">pontos para trocar</div></div><div class="small" style="text-align:right"><b>${nv.cur.nome}</b><div class="tiny muted">${nv.nx?`${nv.nx.min-g} pts para ${nv.nx.nome}`:"nível máximo"}</div></div></div>
+    <div class="lvl"><i style="width:${nv.pct}%"></i></div>
+    <div class="coupon"><div><div class="tiny muted">Seu cupom · ${v.vendas} vendas</div><code>${esc(v.cupom)}</code></div><button class="btn sm line" data-action="copy" data-v="${esc(v.cupom)}">Copiar</button></div></div>`}).join("")}</div>`:`<p class="panel empty">Você ainda não participa de nenhuma marca. Veja as oportunidades.</p>`}</section>
+  <section class="panel"><h2 style="margin-bottom:.6rem">Recados das marcas</h2>${msgs.length?msgs.map(m=>`<div class="item">${sig(emp(m.empId))}<div class="body"><div class="small muted">${esc(emp(m.empId).nome)} · ${fmtD(m.data)}</div><p>${esc(m.texto)}</p></div></div>`).join(""):`<p class="empty">Nenhum recado.</p>`}</section></div>`;
+}
+function cOport(C){
+  const ja=new Set(S.inscricoes.filter(i=>i.criId===C.id).map(i=>i.campId));
+  const fixos=new Set(S.vinculos.filter(v=>v.criId===C.id&&v.fixo).map(v=>v.empId));
+  const cs=S.campanhas.filter(c=>c.status==="ativa"&&!ja.has(c.id)&&(c.modelo==="aberta"||fixos.has(c.empId)));
+  cs.sort((a,b)=>encaixa(a,C).length-encaixa(b,C).length);
+  return `<div class="stack">${cs.length?cs.map(c=>{const E=emp(c.empId),mot=c.modelo==="aberta"?encaixa(c,C):[],v=vinc(E.id,C.id),rest=c.vagas-vagasUsadas(c);
+    const precisaTermo=!v||v.termoVersao<E.termo.versao;const open=S.ui.apply===c.id;
+    return `<section class="panel"><div class="row between">${tagEmp(E)}<span class="chip ${c.modelo==="missao"?"wait":""}">${c.modelo==="missao"?"Missão do time":`${Math.max(0,rest)} vagas`}</span></div>
+    <h3 style="margin-top:.6rem">${esc(c.titulo)}</h3><p class="small muted" style="margin-top:.15rem">${esc(c.produto)}</p>
+    <div class="chips"><span class="chip ok">${esc(recompensaTxt(c))}</span>${c.prazo?`<span class="chip grey">Prazo ${esc(c.prazo)}</span>`:""}<span class="chip grey">${esc(TIPOS[c.tipo])}</span>${mot.length?`<span class="chip no">Fora do perfil: ${mot.join(", ")}</span>`:c.modelo==="aberta"?`<span class="chip">Combina com você</span>`:""}</div>
+    <details style="margin-top:.6rem"><summary class="small">Ver briefing</summary><div class="quote">${esc(c.briefing)}</div></details>
+    ${open?`<form data-form="apply" data-v="${c.id}" style="margin-top:.9rem">
+      ${c.modelo==="aberta"?`<div class="field"><label for="ap-p">Como você faria esse vídeo?</label><textarea id="ap-p" name="pitch" required placeholder="Conte a ideia em 2 ou 3 frases. É isso que a marca lê para escolher."></textarea></div>`:""}
+      ${precisaTermo?`<div class="field"><label>Termo da ${esc(E.nome)} (versão ${E.termo.versao})</label><div class="termo" tabindex="0">${esc(E.termo.texto)}</div>
+      <label class="row" style="font-weight:600;margin-top:.6rem"><input type="checkbox" name="aceite" required> Li e aceito o termo</label></div>`:""}
+      <div class="actions"><button class="btn alt">${c.modelo==="aberta"?"Enviar candidatura":"Aceitar missão"}</button><button type="button" class="btn line" data-action="applyOff">Cancelar</button></div></form>`
+    :`<div class="actions"><button class="btn ${mot.length?"line":""}" data-action="applyOn" data-v="${c.id}" ${mot.length||rest<=0&&c.modelo==="aberta"?"disabled":""}>${c.modelo==="aberta"?"Quero participar":"Participar da missão"}</button></div>`}</section>`}).join(""):`<p class="panel empty">Nenhuma oportunidade nova agora.</p>`}</div>`;
+}
+function cEntregas(C){
+  const is=S.inscricoes.filter(i=>i.criId===C.id).sort((a,b)=>(QUEM[b.etapa]==="criador"&&b.status==="aprovado")-(QUEM[a.etapa]==="criador"&&a.status==="aprovado")||new Date(b.mov)-new Date(a.mov));
+  if(!is.length)return `<p class="panel empty">Você ainda não participa de campanhas. <br><br><button class="btn" data-action="tabC" data-v="oport">Ver oportunidades</button></p>`;
+  return `<section class="panel">${is.map(i=>{const k=camp(i.campId),E=emp(k.empId);let a="";
+    if(i.status==="pendente")a=`<p class="small muted" style="margin-top:.4rem">Candidatura enviada. A marca ainda vai avaliar.</p>`;
+    else if(i.status==="recusado")a=`<p class="small muted" style="margin-top:.4rem">Não foi dessa vez${i.motivo?`: ${esc(i.motivo)}`:"."}</p>`;
+    else{
+      if(i.etapa===0)a=`<p class="small muted" style="margin-top:.4rem">Aprovado! A marca vai enviar ${k.permuta?"o produto":"as orientações"}.</p>`;
+      if(i.etapa===1)a=`<p class="small" style="margin-top:.4rem">${esc(k.permuta)} está a caminho.</p><div class="actions"><button class="btn sm alt" data-action="avancar" data-v="${i.id}" data-to="2">Recebi o produto</button></div>`;
+      if(i.etapa===2)a=`${i.ajuste?`<div class="quote warn">A marca pediu: ${esc(i.ajuste)}</div>`:""}<form data-form="roteiro" data-v="${i.id}" style="margin-top:.6rem"><div class="field"><label for="rt-${i.id}">Seu roteiro</label><textarea id="rt-${i.id}" name="roteiro" required placeholder="Gancho, o que você mostra e como termina">${esc(i.roteiro)}</textarea></div><div class="actions"><button class="btn sm alt">Enviar roteiro</button></div></form>`;
+      if(i.etapa===3)a=`<p class="small muted" style="margin-top:.4rem">A marca está lendo seu roteiro.</p>`;
+      if(i.etapa===4)a=`${i.ajuste?`<div class="quote warn">A marca pediu: ${esc(i.ajuste)}</div>`:""}<form data-form="video" data-v="${i.id}" style="margin-top:.6rem"><div class="field"><label for="vd-${i.id}">Link do vídeo (Drive, Instagram ou TikTok)</label><input id="vd-${i.id}" name="video" type="url" required placeholder="https://"></div><div class="actions"><button class="btn sm alt">Enviar vídeo</button></div></form>`;
+      if(i.etapa===5)a=`<p class="small muted" style="margin-top:.4rem">A marca está assistindo seu vídeo.</p>`;
+      if(i.etapa===6)a=`<p class="small muted" style="margin-top:.4rem">Vídeo aprovado! Sua recompensa está sendo liberada.</p>`;
+      if(i.etapa===7)a=`<div class="chips">${resultChips(i)}<span class="chip ok">+${ptsIns(i)} pts</span></div>${!i.publicado&&k.tipo!=="ugc"?`<div class="actions"><button class="btn sm alt" data-action="publiquei" data-v="${i.id}">Já publiquei (+${E.pts.publicado})</button></div>`:""}`;
+    }
+    return `<div class="item">${sig(E)}<div class="body"><div class="title">${esc(k.titulo)}</div><div class="small muted">${esc(E.nome)} · ${i.status==="aprovado"?esc(ETAPAS[i.etapa]):i.status==="pendente"?"Em análise":"Não aprovado"}</div>${i.status==="aprovado"?trackHTML(i):""}${a}</div></div>`}).join("")}</section>`;
+}
+function escolherEmp(C,key){
+  const vs=S.vinculos.filter(v=>v.criId===C.id);if(!vs.length)return null;
+  if(!vs.some(v=>v.empId===S.ui[key]))S.ui[key]=vs[0].empId;
+  return {vs,E:emp(S.ui[key]),sel:`<div class="ctx"><span class="small muted">Marca</span><select data-change="${key}" aria-label="Escolher marca">${vs.map(v=>`<option value="${v.empId}" ${v.empId===S.ui[key]?"selected":""}>${esc(emp(v.empId).nome)}</option>`).join("")}</select></div>`};
+}
+function cLoja(C){
+  const x=escolherEmp(C,"lojaEmp");if(!x)return `<p class="panel empty">Participe de uma marca para juntar pontos.</p>`;
+  const E=x.E,sd=ganhos(E.id,C.id)-gastos(E.id,C.id);const meus=S.resgates.filter(r=>r.empId===E.id&&r.criId===C.id);
+  return `${x.sel}<div class="stack"><section class="panel"><div class="ph"><h2>Trocar pontos</h2><span class="small muted">Você tem <b>${sd}</b> pts na ${esc(E.nome)}</span></div>
+    <div class="shop">${E.recompensas.map(r=>`<div class="prod"><h3>${esc(r.nome)}</h3><p class="small muted">${esc(r.desc)}</p><div class="cost">${r.custo} pts</div><button class="btn sm" data-action="resgatar" data-v="${r.id}" ${sd<r.custo?"disabled":""}>${sd<r.custo?`Faltam ${r.custo-sd}`:"Trocar"}</button></div>`).join("")}</div></section>
+    ${meus.length?`<section class="panel"><h2 style="margin-bottom:.6rem">Suas trocas</h2>${meus.map(r=>`<div class="item"><div class="body"><div class="title">${esc(r.nome)}</div><div class="small muted">${fmtD(r.data)}</div></div><span class="chip ${r.entregue?"ok":"wait"}">${r.entregue?"Entregue":"Separando"}</span></div>`).join("")}</section>`:""}</div>`;
+}
+function cRanking(C){
+  const x=escolherEmp(C,"rankEmp");if(!x)return `<p class="panel empty">Participe de uma marca para entrar no ranking.</p>`;
+  return `${x.sel}<div class="stack">${rankingHTML(x.E.id,S.ui.rankCity,C.id)}${cidadesHTML(x.E.id)}</div>`;
+}
+
+/* ================= PLATAFORMA ================= */
+function vPlataforma(){
+  const es=S.empresas;const mrr=es.reduce((a,e)=>a+PLANOS[e.plano].preco,0);
+  const feitos=S.inscricoes.filter(i=>i.status==="aprovado"&&i.etapa===7).length;
+  const vendas=S.vinculos.reduce((a,v)=>a+v.vendas,0);
+  return `<div class="kpis">
+    <div class="kpi"><b>${es.length}</b><span>empresas clientes</span></div>
+    <div class="kpi"><b>${brl(mrr)}</b><span>receita mensal (MRR)</span></div>
+    <div class="kpi"><b>${S.criadores.length}</b><span>criadores cadastrados</span></div>
+    <div class="kpi"><b>${S.campanhas.filter(c=>c.status==="ativa").length}</b><span>campanhas ativas</span></div>
+    <div class="kpi"><b>${feitos}</b><span>vídeos entregues</span></div>
+    <div class="kpi"><b>${fmtN(vendas)}</b><span>vendas pelos cupons</span></div></div>
+  <section class="panel"><h2 style="margin-bottom:.6rem">Empresas</h2><div class="tbl"><table><thead><tr><th>Empresa</th><th>Plano</th><th class="num">Mensalidade</th><th class="num">Criadores</th><th class="num">Campanhas ativas</th><th class="num">Vídeos</th><th>Cliente desde</th><th></th></tr></thead><tbody>
+  ${es.map(e=>{const ii=insDaEmp(e.id);return `<tr><td>${tagEmp(e)}<div class="small muted">${esc(e.segmento)}</div></td><td>${PLANOS[e.plano].nome}</td><td class="num">${brl(PLANOS[e.plano].preco)}</td><td class="num">${S.vinculos.filter(v=>v.empId===e.id).length}</td><td class="num">${S.campanhas.filter(c=>c.empId===e.id&&c.status==="ativa").length}</td><td class="num">${ii.filter(i=>i.etapa===7&&i.status==="aprovado").length}</td><td>${fmtD(e.desde)}</td><td><button class="btn sm line" data-action="entrarEmp" data-v="${e.id}">Abrir painel</button></td></tr>`}).join("")}</tbody></table></div></section>
+  <div class="ph" style="margin-top:1.4rem"><h2>Planos</h2><span class="small muted">Valores sugeridos para validar com clientes</span></div>
+  <div class="bcards">${Object.entries(PLANOS).map(([k,p])=>`<div class="bcard plan"><h3>${p.nome}</h3><div class="price" style="margin:.3rem 0 .5rem">${brl(p.preco)}<small>/mês</small></div><ul class="small" style="margin:0;padding-left:1.1rem">${p.itens.map(x=>`<li>${x}</li>`).join("")}</ul><p class="tiny muted" style="margin-top:.5rem">${es.filter(e=>e.plano===k).length} cliente(s)</p></div>`).join("")}</div>
+  <form class="panel" data-form="novaEmp" style="margin-top:1rem"><h2>Cadastrar empresa</h2><p class="small muted" style="margin:.2rem 0 .9rem">A empresa já começa com termo padrão, regras de pontos e um painel vazio.</p>
+    <div class="cols2"><div class="field"><label for="ne-n">Nome</label><input id="ne-n" name="nome" required></div><div class="field"><label for="ne-s">Segmento</label><input id="ne-s" name="segmento" placeholder="Ex.: pizzaria"></div>
+    <div class="field"><label for="ne-c">Cidades</label><input id="ne-c" name="cidades" placeholder="Separe por vírgula" required></div><div class="field"><label for="ne-p">Plano</label><select id="ne-p" name="plano">${Object.entries(PLANOS).map(([k,p])=>`<option value="${k}">${p.nome} · ${brl(p.preco)}</option>`).join("")}</select></div>
+    <div class="field"><label for="ne-cor">Cor</label><input id="ne-cor" name="cor" type="color" value="#4B5BB5"></div></div>
+    <div class="actions" style="margin-top:1rem"><button class="btn">Cadastrar</button></div></form>
+  <div class="actions" style="margin-top:1.4rem"><button class="btn sm danger" data-action="reset">Restaurar dados de exemplo</button></div>`;
+}
+
+/* ================= Render e eventos ================= */
+function render(){
+  document.getElementById("app-name").textContent=APP;
+  document.querySelectorAll('[data-action="mode"]').forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===S.ui.mode)));
+  const m=S.ui.mode;
+  document.getElementById("app").innerHTML=m==="criador"?vCriador():m==="plataforma"?vPlataforma():vEmpresa();
+  save();
+}
+function mover(i,to,extra){Object.assign(i,{etapa:to,mov:new Date().toISOString()},extra||{});}
+function novoWiz(modelo){const E=emp(S.ui.empId);return {step:0,d:{modelo,produto:"",objetivo:OBJETIVOS[0],bmodo:"auto",titulo:"",tipo:modelo==="missao"?"ambos":"ugc",duracao:"30s",tom:"Descontraído",mostrar:"",evitar:"",nichos:[],cidades:[...E.cidades],minSeg:0,vagas:5,dinheiro:0,permuta:"",prazo:"",briefing:"",bv:0}};}
+function garantirVinculo(empId,criId,fixo){
+  let v=vinc(empId,criId);const E=emp(empId),c=cri(criId);
+  if(!v){v={id:uid(),empId,criId,fixo,vendas:0,cupom:semAcento(c.nome.split(" ")[0]).toUpperCase()+"10",termoVersao:0,termoData:null,desde:new Date().toISOString()};S.vinculos.push(v);}
+  return v;
+}
+
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-action]");if(!el||el.tagName==="SELECT"||el.type==="checkbox")return;
+  const a=el.dataset.action,v=el.dataset.v,U=S.ui;
+  if(a==="mode"){U.mode=v;}
+  else if(a==="tabE"){U.tabE=v;U.campId=null;U.wiz=null;U.ajuste=null;U.msgPara=null;}
+  else if(a==="msgEtapa"){U.tabE="mensagens";U.msgPara="etapa:"+U.etapa;}
+  else if(a==="tabC"){U.tabC=v;U.apply=null;}
+  else if(a==="timeSub"){U.timeSub=v;}
+  else if(a==="etapa"){U.etapa=+v;U.ajuste=null;}
+  else if(a==="abrirEtapa"){U.tabE="producao";U.etapa=+v;U.crmCamp="todas";}
+  else if(a==="abrirCamp"){U.tabE="campanhas";U.campId=v;U.fil={};U.wiz=null;}
+  else if(a==="voltarCamps"){U.campId=null;}
+  else if(a==="novaCamp"){U.tabE="campanhas";U.campId=null;U.wiz=novoWiz(v);}
+  else if(a==="wizCancel"){U.wiz=null;}
+  else if(a==="wizBack"){const f=document.querySelector('[data-form="wiz"]');if(f)lerWiz(f);U.wiz.step=Math.max(0,U.wiz.step-1);}
+  else if(a==="wizGerar"){const f=document.querySelector('[data-form="wiz"]');if(f)lerWiz(f);U.wiz.d.bv++;U.wiz.d.briefing=gerarBriefing(U.wiz.d,U.wiz.d.bv);toast("Nova versão do briefing");}
+  else if(a==="toggleCamp"){const c=camp(v);c.status=c.status==="ativa"?"encerrada":"ativa";toast(c.status==="ativa"?"Campanha reativada":"Campanha encerrada");}
+  else if(a==="fav"){const i=ins(v);i.fav=!i.fav;}
+  else if(a==="aprovarIns"){const i=ins(v);const c=camp(i.campId);i.status="aprovado";mover(i,0);garantirVinculo(c.empId,i.criId,false);toast(`${cri(i.criId).nome.split(" ")[0]} aprovado. Já está na Produção.`);}
+  else if(a==="recusarIns"){const i=ins(v);i.status="recusado";i.motivo="O perfil não encaixou nesta campanha.";toast("Inscrição recusada");}
+  else if(a==="avancar"){const i=ins(v);const to=+el.dataset.to;mover(i,to,{ajuste:""});toast(U.mode==="criador"?"Pronto! A marca foi avisada.":`Movido para: ${ETAPAS[to]}`);}
+  else if(a==="ajusteOn"){U.ajuste=v;}
+  else if(a==="ajusteOff"){U.ajuste=null;}
+  else if(a==="lembrar"){const i=ins(v);const k=camp(i.campId);S.mensagens.push({id:uid(),empId:k.empId,para:cri(i.criId).nome,criIds:[i.criId],texto:`Lembrete: falta você ${({1:"confirmar o recebimento do produto",2:"enviar o roteiro",4:"enviar o vídeo"})[i.etapa]} da campanha “${k.titulo}”.`,data:new Date().toISOString()});toast("Lembrete enviado");}
+  else if(a==="nota"){ins(v).nota=+el.dataset.n;}
+  else if(a==="concluir"){const i=ins(v);const k=camp(i.campId);mover(i,7,{pago:true});toast(k.dinheiro?`Pagamento de ${brl(k.dinheiro)} registrado. +${ptsIns(i)} pts para o criador`:`Concluído. +${ptsIns(i)} pts para o criador`);}
+  else if(a==="venda"){const vi=S.vinculos.find(x=>x.id===v);const q=Math.max(1,parseInt(document.getElementById("q-"+v).value,10)||1);vi.vendas+=q;toast(`${q} venda(s) lançada(s)`);}
+  else if(a==="entregar"){S.resgates.find(r=>r.id===v).entregue=true;toast("Troca entregue");}
+  else if(a==="delRec"){const E=emp(U.empId);E.recompensas=E.recompensas.filter(r=>r.id!==v);toast("Recompensa removida");}
+  else if(a==="copy"){try{navigator.clipboard.writeText(v).then(()=>toast("Copiado"),()=>toast(v));}catch(_){toast(v);}return;}
+  else if(a==="applyOn"){U.apply=v;}
+  else if(a==="applyOff"){U.apply=null;}
+  else if(a==="publiquei"){const i=ins(v);i.publicado=true;toast(`+${emp(camp(i.campId).empId).pts.publicado} pts. Boa!`);}
+  else if(a==="resgatar"){const E=emp(U.lojaEmp),r=E.recompensas.find(x=>x.id===v),C=U.criId;if(ganhos(E.id,C)-gastos(E.id,C)<r.custo)return;S.resgates.push({id:uid(),empId:E.id,criId:C,nome:r.nome,custo:r.custo,data:new Date().toISOString(),entregue:false});toast(`${r.nome} garantido! A loja vai separar.`);}
+  else if(a==="entrarEmp"){U.mode="empresa";U.empId=v;U.tabE="inicio";U.etapa=null;}
+  else if(a==="reset"){if(el.dataset.ok!=="1"){el.dataset.ok="1";el.textContent="Toque de novo para confirmar";return;}S=seed();toast("Dados de exemplo restaurados");}
+  else return;
+  render();
+});
+document.addEventListener("change",e=>{
+  const el=e.target,U=S.ui;
+  if(el.dataset.fil){U.fil[el.dataset.fil]=el.type==="checkbox"?el.checked:el.value;render();return;}
+  const a=el.dataset.change;if(!a)return;
+  if(a==="empId"){U.empId=el.value;U.campId=null;U.wiz=null;U.etapa=null;U.crmCamp="todas";U.rankCity="todas";}
+  else if(a==="criId"){U.criId=el.value;U.apply=null;U.rankCity="todas";}
+  else if(a==="crmCamp"){U.crmCamp=el.value;U.etapa=null;}
+  else if(a==="rankCity"){U.rankCity=el.value;}
+  else if(a==="lojaEmp"||a==="rankEmp"){U[a]=el.value;U.rankCity="todas";}
+  else if(a==="flag"){const i=ins(el.dataset.v);i[el.dataset.f]=el.checked;if(el.dataset.f==="campeao"&&el.checked){i.ads=true;toast(`Campeão! +${emp(camp(i.campId).empId).pts.campeao} pts para o criador`);}}
+  else if(a==="fixo"){const v=S.vinculos.find(x=>x.id===el.dataset.v);v.fixo=el.checked;toast(v.fixo?"Adicionado ao time fixo":"Saiu do time fixo");}
+  else return;
+  render();
+});
+document.addEventListener("input",e=>{
+  const el=e.target;if(el.dataset.fil==="q"){S.ui.fil.q=el.value;clearTimeout(render._q);render._q=setTimeout(()=>{render();const x=document.getElementById("f-q");if(x){x.focus();x.setSelectionRange(x.value.length,x.value.length);}},250);}
+});
+document.addEventListener("submit",e=>{
+  const f=e.target;e.preventDefault();const fd=new FormData(f);const g=k=>String(fd.get(k)||"").trim();const U=S.ui;const t=f.dataset.form;
+  if(t==="wiz"){
+    lerWiz(f);const w=U.wiz,d=w.d;const passos=d.modelo==="missao"?PASSOS.filter(p=>p!=="Quem participa"):PASSOS;const nome=passos[w.step];
+    if(nome==="Produto"&&!d.produto){toast("Descreva o que vai ser divulgado");return;}
+    if(nome==="Formato"&&!d.titulo){toast("Dê um nome para a campanha");return;}
+    if(nome==="Recompensa"&&!d.briefing&&d.bmodo!=="proprio")d.briefing=gerarBriefing(d,d.bv);
+    if(nome==="Briefing"&&!d.briefing){toast("Escreva ou gere o briefing");return;}
+    if(nome==="Revisar"){
+      const c=Object.assign({id:uid(),empId:U.empId,status:"ativa",criada:new Date().toISOString()},d);
+      if(c.modelo==="missao"){c.nichos=[];c.cidades=[];c.minSeg=0;}
+      delete c.bmodo;delete c.bv;S.campanhas.push(c);U.wiz=null;U.campId=null;
+      toast(c.modelo==="missao"?"Missão publicada para o time fixo":"Campanha publicada. Os criadores já podem se candidatar.");
+    }else{
+      // O tipo pode ter mudado neste passo: missões não têm o passo "Quem participa"
+      const passos2=d.modelo==="missao"?PASSOS.filter(p=>p!=="Quem participa"):PASSOS;
+      w.step=passos2.indexOf(nome)+1;
+    }
+  }
+  else if(t==="ajuste"){const i=ins(f.dataset.v);const txt=g("ajuste");if(!txt){toast("Escreva o que precisa mudar");return;}mover(i,i.etapa===3?2:4,{ajuste:txt});U.ajuste=null;toast("Pedido de ajuste enviado ao criador");}
+  else if(t==="roteiro"){const i=ins(f.dataset.v);const txt=g("roteiro");if(!txt){toast("Escreva o roteiro");return;}mover(i,3,{roteiro:txt,ajuste:""});toast("Roteiro enviado para a marca");}
+  else if(t==="video"){const i=ins(f.dataset.v);const l=g("video");if(!/^https?:\/\/\S+/.test(l)){toast("Cole o link completo, começando com https://");return;}mover(i,5,{video:l,ajuste:""});toast("Vídeo enviado para aprovação");}
+  else if(t==="apply"){
+    const c=camp(f.dataset.v),E=emp(c.empId),C=U.criId;const v0=vinc(E.id,C);const precisa=!v0||v0.termoVersao<E.termo.versao;
+    if(c.modelo==="aberta"&&!g("pitch")){toast("Conte como você faria o vídeo");return;}
+    if(precisa&&!fd.get("aceite")){toast("Para participar, aceite o termo da marca");return;}
+    const v=garantirVinculo(E.id,C,false);if(precisa){v.termoVersao=E.termo.versao;v.termoData=new Date().toISOString();}
+    const now=new Date().toISOString();
+    S.inscricoes.push({id:uid(),campId:c.id,criId:C,pitch:g("pitch"),status:c.modelo==="missao"?"aprovado":"pendente",etapa:c.modelo==="missao"?4:0,fav:false,data:now,mov:now,roteiro:"",video:"",ajuste:"",nota:0,publicado:false,ads:false,campeao:false,pago:false});
+    U.apply=null;U.tabC="entregas";toast(c.modelo==="missao"?"Missão aceita. Grave e envie o vídeo.":"Candidatura enviada!");
+  }
+  else if(t==="convite"){
+    const E=emp(U.empId);if(!g("nome")||!g("insta")){toast("Preencha nome e Instagram");return;}
+    const c={id:uid(),nome:g("nome"),insta:g("insta"),cidade:g("cidade"),uf:"SP",nicho:g("nicho"),seguidores:0,bio:""};S.criadores.push(c);garantirVinculo(E.id,c.id,true);
+    toast(`Convite gerado para ${c.nome}. O termo fica pendente até ele aceitar.`);
+  }
+  else if(t==="msg"){
+    const E=emp(U.empId),p=g("para"),txt=g("texto");if(!txt){toast("Escreva a mensagem");return;}
+    let ids=[],rot="";
+    if(p==="time"){ids=S.vinculos.filter(v=>v.empId===E.id&&v.fixo).map(v=>v.criId);rot="Todo o time fixo";}
+    else if(p.startsWith("camp:")){const k=camp(p.slice(5));ids=S.inscricoes.filter(i=>i.campId===k.id&&i.status==="aprovado").map(i=>i.criId);rot="Aprovados: "+k.titulo;}
+    else if(p.startsWith("etapa:")){const k=+p.slice(6);ids=insDaEmp(E.id).filter(i=>i.status==="aprovado"&&i.etapa===k).map(i=>i.criId);rot="Etapa: "+ETAPAS[k];}
+    ids=[...new Set(ids)];if(!ids.length){toast("Ninguém nesse grupo agora");return;}
+    S.mensagens.push({id:uid(),empId:E.id,para:rot,criIds:ids,texto:txt,data:new Date().toISOString()});toast(`Mensagem enviada para ${ids.length} criador(es)`);
+  }
+  else if(t==="marca"){
+    const E=emp(U.empId);E.nome=g("nome")||E.nome;E.segmento=g("segmento");E.cor=g("cor")||E.cor;
+    E.sigla=semAcento(E.nome).split(/\s+/).map(p=>p[0]).join("").slice(0,2).toUpperCase();
+    const cs=g("cidades").split(",").map(s=>s.trim()).filter(Boolean);if(cs.length)E.cidades=cs;
+    Object.keys(E.pts).forEach(k=>{const n=parseInt(fd.get("pt_"+k),10);if(!isNaN(n)&&n>=0)E.pts[k]=n;});toast("Marca e regras salvas");
+  }
+  else if(t==="termo"){const E=emp(U.empId);const txt=g("texto");if(!txt){toast("O termo não pode ficar vazio");return;}if(txt===E.termo.texto){toast("Nada mudou no texto");return;}E.termo={versao:E.termo.versao+1,data:new Date().toISOString(),texto:txt};toast(`Versão ${E.termo.versao} publicada. Os criadores vão aceitar de novo.`);}
+  else if(t==="rec"){const E=emp(U.empId);if(!g("nome"))return;E.recompensas.push({id:uid(),nome:g("nome"),desc:g("desc"),custo:Math.max(1,parseInt(fd.get("custo"),10)||100)});toast("Recompensa adicionada");}
+  else if(t==="novaEmp"){
+    const nome=g("nome");const cs=g("cidades").split(",").map(s=>s.trim()).filter(Boolean);if(!nome||!cs.length){toast("Preencha nome e pelo menos uma cidade");return;}
+    const e={id:uid(),nome,sigla:semAcento(nome).split(/\s+/).map(p=>p[0]).join("").slice(0,2).toUpperCase(),segmento:g("segmento"),cor:g("cor")||"#4B5BB5",cidades:cs,plano:g("plano")||"essencial",desde:new Date().toISOString(),pts:{...DEF_PTS},termo:{versao:1,data:new Date().toISOString(),texto:TERMO_PADRAO(nome)},recompensas:[{id:uid(),nome:"Vale-compra",desc:"Crédito na loja.",custo:150}]};
+    S.empresas.push(e);toast(`${nome} cadastrada no plano ${PLANOS[e.plano].nome}`);
+  }
+  render();
+});
+try{const raw=localStorage.getItem(KEY);S=raw?JSON.parse(raw):seed();}catch(e){S=seed();}
+render();
+</script>
