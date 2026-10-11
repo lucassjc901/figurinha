@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Time Prime — plataforma de influenciadores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F7F2;--surface:#FFFFFF;--ink:#16241C;--muted:#5A6A60;--line:#DCE3D8;
+  --leaf:#1F5A3E;--leaf-ink:#FFFFFF;--leaf-soft:#E2EFE6;
+  --carrot:#E8701A;--carrot-soft:#FCE9D8;--gold:#D19B0F;--silver:#98A59D;--bronze:#B8703E;
+  --danger:#B93A27;--danger-soft:#F8E1DC;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1712;--surface:#17231C;--ink:#E8F0EA;--muted:#9BAFA2;--line:#2A3B31;
+    --leaf:#62C08F;--leaf-ink:#0F1712;--leaf-soft:#1C3427;
+    --carrot:#F4984D;--carrot-soft:#3A2715;--gold:#E6BC43;--silver:#AEB9B2;--bronze:#D08E5E;
+    --danger:#EC7462;--danger-soft:#3B1E19;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1712;--surface:#17231C;--ink:#E8F0EA;--muted:#9BAFA2;--line:#2A3B31;
+  --leaf:#62C08F;--leaf-ink:#0F1712;--leaf-soft:#1C3427;
+  --carrot:#F4984D;--carrot-soft:#3A2715;--gold:#E6BC43;--silver:#AEB9B2;--bronze:#D08E5E;
+  --danger:#EC7462;--danger-soft:#3B1E19;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Bricolage Grotesque","Figtree",system-ui,sans-serif;line-height:1.15;margin:0}
+h1{font-size:1.5rem;font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.25rem;font-weight:700}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--leaf)}
+:focus-visible{outline:3px solid var(--carrot);outline-offset:2px}
+
+/* Top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-in{max-width:1100px;margin:0 auto;padding:.75rem 1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:.6rem;margin-right:auto}
+.brand-mark{width:34px;height:34px;border-radius:9px;background:var(--leaf);color:var(--leaf-ink);display:grid;place-items:center;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.1rem}
+.brand small{display:block;color:var(--muted);font-size:.78rem;line-height:1.2}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px}
+.seg button{border:0;background:transparent;padding:.4rem .9rem;border-radius:999px;cursor:pointer;font-weight:600;font-size:.9rem;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--leaf);color:var(--leaf-ink)}
+
+.wrap{max-width:1100px;margin:0 auto;padding:1rem 1rem 6rem}
+.phone{max-width:520px;margin:0 auto}
+
+/* Tabs */
+.tabs{display:flex;gap:.25rem;overflow-x:auto;margin:0 0 1.25rem;padding-bottom:2px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;border:0;background:transparent;padding:.55rem .85rem;border-radius:10px;cursor:pointer;font-weight:600;color:var(--muted);font-size:.95rem}
+.tabs button[aria-selected="true"]{background:var(--leaf-soft);color:var(--leaf)}
+.tabs .count{display:inline-block;min-width:1.35em;padding:0 .35em;margin-left:.3em;border-radius:999px;background:var(--carrot);color:#fff;font-size:.75rem;line-height:1.35em;text-align:center}
+
+/* Panels */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:1.1rem}
+.stack>*+*{margin-top:1rem}
+.muted{color:var(--muted)}
+.small{font-size:.88rem}
+.row{display:flex;align-items:center;gap:.75rem}
+.between{justify-content:space-between}
+.grid2{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+
+/* Hero do influenciador */
+.me{background:var(--leaf);color:var(--leaf-ink);border-radius:20px;padding:1.2rem 1.2rem 1.1rem}
+.me .who{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start}
+.me .name{font-family:"Bricolage Grotesque",sans-serif;font-size:1.45rem;font-weight:800}
+.me .city{opacity:.8;font-size:.9rem}
+.pts{text-align:right}
+.pts b{font-family:"Bricolage Grotesque",sans-serif;font-size:1.9rem;font-weight:800;line-height:1}
+.pts span{display:block;font-size:.8rem;opacity:.8}
+.level{margin-top:1rem}
+.level .bar{height:12px;border-radius:999px;background:color-mix(in srgb,var(--leaf-ink) 22%,transparent);overflow:hidden;margin:.4rem 0 .3rem}
+.level .fill{height:100%;background:var(--carrot);border-radius:999px;transition:width .5s ease}
+.level .lv{display:flex;justify-content:space-between;font-size:.85rem}
+.coupon{margin-top:1rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;border:1.5px dashed color-mix(in srgb,var(--leaf-ink) 55%,transparent);border-radius:12px;padding:.6rem .8rem}
+.coupon code{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.15rem;letter-spacing:.04em}
+.btn-ghost-inv{border:1px solid color-mix(in srgb,var(--leaf-ink) 50%,transparent);background:transparent;color:var(--leaf-ink);border-radius:9px;padding:.35rem .7rem;cursor:pointer;font-weight:600;font-size:.85rem}
+
+/* Missão */
+.mission{border-left:5px solid var(--carrot);background:var(--carrot-soft);border-radius:12px;padding:.9rem 1rem}
+.mission .tag{font-weight:700;color:var(--carrot);font-size:.85rem}
+.mission h3{margin:.15rem 0 .3rem}
+
+/* Botões */
+.btn{border:0;border-radius:10px;padding:.6rem 1rem;font-weight:700;cursor:pointer;background:var(--leaf);color:var(--leaf-ink)}
+.btn:hover{filter:brightness(1.07)}
+.btn.alt{background:var(--carrot);color:#fff}
+.btn.line{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn.danger{background:var(--danger-soft);color:var(--danger)}
+.btn.sm{padding:.38rem .7rem;font-size:.85rem;border-radius:8px}
+.btn[disabled]{opacity:.45;cursor:not-allowed;filter:none}
+
+/* Formulários */
+label{display:block;font-weight:600;font-size:.9rem;margin-bottom:.3rem}
+input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:.6rem .7rem}
+textarea{min-height:80px;resize:vertical}
+.field+.field{margin-top:.85rem}
+.choices{display:flex;gap:.5rem;flex-wrap:wrap}
+.choices label{display:flex;align-items:center;gap:.4rem;border:1px solid var(--line);border-radius:10px;padding:.5rem .75rem;cursor:pointer;margin:0;font-weight:500}
+.choices input{width:auto;accent-color:var(--leaf)}
+
+/* Lista de vídeos */
+.item{display:flex;gap:.8rem;align-items:flex-start;padding:.85rem 0;border-top:1px solid var(--line)}
+.item:first-child{border-top:0;padding-top:0}
+.item .body{flex:1;min-width:0}
+.item .title{font-weight:600;overflow-wrap:anywhere}
+.chips{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.35rem}
+.chip{font-size:.78rem;font-weight:600;padding:.12rem .55rem;border-radius:999px;background:var(--leaf-soft);color:var(--leaf)}
+.chip.wait{background:var(--carrot-soft);color:var(--carrot)}
+.chip.no{background:var(--danger-soft);color:var(--danger)}
+.chip.star{background:var(--gold);color:#2A1E00}
+.gain{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;color:var(--leaf);white-space:nowrap}
+.actions{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.55rem}
+
+/* Pódio em formato de marmita */
+.podium{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:end;gap:.6rem;margin:.5rem 0 1rem}
+.pod{text-align:center}
+.pod .pname{font-weight:700;font-size:.92rem;line-height:1.2;margin-bottom:.1rem;overflow-wrap:anywhere}
+.pod .ppts{color:var(--muted);font-size:.8rem;margin-bottom:.4rem}
+.pot{position:relative;border-radius:6px 6px 14px 14px;display:grid;place-items:center;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:1.8rem;color:#fff}
+.pot::before{content:"";position:absolute;left:-5px;right:-5px;top:-9px;height:12px;border-radius:7px;background:inherit;filter:brightness(.82)}
+.p1 .pot{height:130px;background:var(--gold);color:#2A1E00}
+.p2 .pot{height:96px;background:var(--silver)}
+.p3 .pot{height:74px;background:var(--bronze)}
+
+.rank{list-style:none;margin:0;padding:0}
+.rank li{display:flex;align-items:center;gap:.75rem;padding:.6rem 0;border-top:1px solid var(--line)}
+.rank li:first-child{border-top:0}
+.rank .pos{width:1.8rem;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;color:var(--muted);text-align:center}
+.rank .you{background:var(--leaf-soft);border-radius:10px;padding-left:.5rem;padding-right:.5rem}
+.rank .n{flex:1;min-width:0}
+.rank .n small{display:block;color:var(--muted)}
+.rank b{font-family:"Bricolage Grotesque",sans-serif}
+
+/* Loja */
+.shop{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.prod{border:1px solid var(--line);border-radius:14px;padding:.9rem;display:flex;flex-direction:column;gap:.5rem;background:var(--surface)}
+.prod .cost{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;color:var(--carrot);font-size:1.2rem}
+.prod .btn{margin-top:auto}
+
+/* Tabelas */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.93rem}
+th,td{text-align:left;padding:.6rem .5rem;border-top:1px solid var(--line);vertical-align:middle}
+th{color:var(--muted);font-weight:600;font-size:.83rem;border-top:0}
+td.num,th.num{text-align:right}
+
+/* Métricas do gestor */
+.kpis{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin-bottom:1.25rem}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:.85rem 1rem}
+.kpi b{display:block;font-family:"Bricolage Grotesque",sans-serif;font-size:1.5rem;font-weight:800}
+.kpi span{color:var(--muted);font-size:.86rem}
+.kpi.warn b{color:var(--carrot)}
+
+.empty{padding:1.5rem;text-align:center;color:var(--muted)}
+.rules{display:grid;grid-template-columns:1fr auto;gap:.35rem 1rem;font-size:.93rem}
+.rules b{font-family:"Bricolage Grotesque",sans-serif;color:var(--leaf);text-align:right}
+
+.toast{position:fixed;left:50%;bottom:calc(1.2rem + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:.7rem 1.1rem;border-radius:12px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:90vw;z-index:50}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.switcher{display:flex;align-items:center;gap:.5rem;margin-bottom:1rem;font-size:.88rem;color:var(--muted)}
+.switcher select{width:auto;padding:.35rem .5rem}
+/* Termo */
+.termo{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.termo-head{background:var(--leaf);color:var(--leaf-ink);padding:1.1rem 1.2rem}
+.termo-head p{opacity:.85;font-size:.92rem;margin-top:.3rem}
+.termo-body{padding:1.1rem 1.2rem;max-height:52vh;overflow-y:auto;font-size:.95rem;line-height:1.6}
+.termo-body h3{margin:1.2rem 0 .4rem;color:var(--leaf)}
+.termo-body h3:first-child{margin-top:0}
+.termo-body p+p{margin-top:.6rem}
+.termo-body .decl{margin-top:1.2rem;padding:.85rem 1rem;background:var(--leaf-soft);border-radius:12px;font-weight:600}
+.termo-foot{padding:1rem 1.2rem;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:.5rem}
+.termo-foot .btn{width:100%;padding:.8rem 1rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">P</div>
+      <div><h1 style="font-size:1.15rem">Time Prime</h1><small>Comunidade de criadores Prime Fit</small></div>
+    </div>
+    <div class="seg" role="group" aria-label="Modo de visualização">
+      <button data-action="mode" data-v="inf">Influenciador</button>
+      <button data-action="mode" data-v="gestor">Gestor</button>
+    </div>
+  </div>
+</header>
+<main class="wrap" id="app"></main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const PTS={aprovado:10,publicado:10,ads:30,campeao:100,missao:20,venda:5};
+const NIVEIS=[{nome:"Iniciante",min:0},{nome:"Criador",min:150},{nome:"Embaixador",min:400},{nome:"Embaixador Prime",min:800}];
+const KEY="timeprime-v2";
+const daysAgo=n=>new Date(Date.now()-n*864e5).toISOString();
+const uid=()=>Math.random().toString(36).slice(2,9);
+
+function seed(){
+  const cidades=["São José dos Campos","Taubaté","Jacareí"];
+  const nomes=[["Ana Beatriz","@anabia.fit",0,14],["Rafael Souza","@rafa.treina",0,9],["Juliana Lima","@ju.lima",0,3],
+    ["Carlos Mendes","@carlao.cross",1,11],["Paula Rocha","@paularocha",1,6],["Diego Alves","@diego.alves",1,1],
+    ["Fernanda Costa","@fe.costa",2,8],["Bruno Martins","@bruno.run",2,4],["Larissa Nogueira","@lari.nog",2,0]];
+  const influencers=nomes.map(([n,i,c,v],k)=>({termo:k<2?null:{aceito:true,data:daysAgo(30)},id:uid(),nome:n,insta:i,cidade:cidades[c],cupom:n.split(" ")[0].toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"")+"10",vendas:v}));
+  const missoes=[
+    {id:uid(),titulo:"Marmita no pós-treino",descricao:"Grave saindo do treino e abrindo a marmita. Gancho nos 3 primeiros segundos: “o que eu como depois do treino”.",prazo:"domingo",ativa:true},
+    {id:uid(),titulo:"Reação ao novo sabor",descricao:"Prove o frango ao molho de mostarda e mel pela primeira vez na câmera. Reação sincera vale mais que roteiro.",prazo:"quarta",ativa:true}
+  ];
+  const videos=[];
+  const add=(inf,o)=>videos.push(Object.assign({id:uid(),infId:influencers[inf].id,link:"https://instagram.com/reel/"+uid(),tipo:"organico",missaoId:null,status:"aprovado",publicado:true,ads:false,campeao:false,obs:"",data:daysAgo(3)},o));
+  add(0,{ads:true,campeao:true,tipo:"ambos",data:daysAgo(20)});add(0,{missaoId:missoes[0].id,ads:true,data:daysAgo(4)});add(0,{data:daysAgo(2),status:"pendente",publicado:false});
+  add(1,{ads:true,data:daysAgo(10)});add(1,{missaoId:missoes[0].id,data:daysAgo(3)});
+  add(2,{data:daysAgo(16)});
+  add(3,{ads:true,tipo:"ads",data:daysAgo(8)});add(3,{missaoId:missoes[1].id,data:daysAgo(1),status:"pendente",publicado:false});
+  add(4,{data:daysAgo(5)});add(4,{status:"recusado",publicado:false,obs:"Áudio baixo",data:daysAgo(6)});
+  add(5,{data:daysAgo(25)});
+  add(6,{ads:true,campeao:true,data:daysAgo(12)});add(6,{missaoId:missoes[1].id,data:daysAgo(2)});
+  add(7,{data:daysAgo(7),publicado:false});add(7,{data:daysAgo(1),status:"pendente",publicado:false,tipo:"ads"});
+  const recompensas=[
+    {id:uid(),nome:"Kit 5 marmitas",desc:"Sabores à sua escolha, retirada na loja.",custo:120},
+    {id:uid(),nome:"Semana de sucos Prime",desc:"5 sucos detox entregues na sua casa.",custo:90},
+    {id:uid(),nome:"Camiseta de treino Prime",desc:"Dry-fit com a marca.",custo:150},
+    {id:uid(),nome:"Kit 10 marmitas",desc:"O combo da semana inteira.",custo:220},
+    {id:uid(),nome:"Kit 20 marmitas + destaque",desc:"Marmitas do mês e um post no perfil oficial da Prime.",custo:450}
+  ];
+  return {cidades,influencers,missoes,videos,recompensas,resgates:[],meId:influencers[0].id,mode:"inf",tabInf:"inicio",tabG:"aprovar",rankCity:"todas"};
+}
+
+let S;
+try{const raw=localStorage.getItem(KEY);S=raw?JSON.parse(raw):seed();}catch(e){S=seed();}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const inf=id=>S.influencers.find(i=>i.id===id);
+const missao=id=>S.missoes.find(m=>m.id===id);
+const fmtD=iso=>{const d=new Date(iso);return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"});};
+const tipoTxt={organico:"Orgânico",ads:"Para anúncio",ambos:"Orgânico + anúncio"};
+
+function vPts(v){
+  if(v.status!=="aprovado")return 0;
+  return PTS.aprovado+(v.publicado?PTS.publicado:0)+(v.ads?PTS.ads:0)+(v.campeao?PTS.campeao:0)+(v.missaoId?PTS.missao:0);
+}
+function earned(id){const i=inf(id);return S.videos.filter(v=>v.infId===id).reduce((a,v)=>a+vPts(v),0)+(i?i.vendas*PTS.venda:0);}
+function spent(id){return S.resgates.filter(r=>r.infId===id).reduce((a,r)=>a+r.custo,0);}
+function nivel(p){let idx=0;NIVEIS.forEach((n,i)=>{if(p>=n.min)idx=i});const cur=NIVEIS[idx],next=NIVEIS[idx+1];
+  const pct=next?Math.round((p-cur.min)/(next.min-cur.min)*100):100;return {cur,next,pct};}
+function lastVideo(id){const vs=S.videos.filter(v=>v.infId===id).map(v=>+new Date(v.data));return vs.length?Math.max(...vs):0;}
+function inativo(id){const l=lastVideo(id);return !l||(Date.now()-l)>14*864e5;}
+function ranking(city){
+  return S.influencers.filter(i=>city==="todas"||i.cidade===city).map(i=>({...i,pts:earned(i.id)})).sort((a,b)=>b.pts-a.pts);
+}
+function cityRanking(){
+  return S.cidades.map(c=>{const m=S.influencers.filter(i=>i.cidade===c);const tot=m.reduce((a,i)=>a+earned(i.id),0);
+    return {cidade:c,membros:m.length,total:tot,media:m.length?Math.round(tot/m.length):0};}).sort((a,b)=>b.media-a.media);
+}
+
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),2400);}
+
+/* ---------- Views: Influenciador ---------- */
+function vInf(){
+  const me=inf(S.meId)||S.influencers[0];S.meId=me.id;
+  const sw=`<div class="switcher"><span>Vendo como</span><select data-action="me" aria-label="Escolher influenciador">${S.influencers.map(i=>`<option value="${i.id}" ${i.id===me.id?"selected":""}>${esc(i.nome)}</option>`).join("")}</select></div>`;
+  if(!me.termo||!me.termo.aceito)return `<div class="phone">${sw}${vTermo(me)}</div>`;
+  const tabs=[["inicio","Início"],["enviar","Enviar vídeo"],["videos","Meus vídeos"],["ranking","Ranking"],["loja","Trocar pontos"]];
+  let body="";
+  if(S.tabInf==="inicio")body=vInicio(me);
+  if(S.tabInf==="enviar")body=vEnviar(me);
+  if(S.tabInf==="videos")body=vMeusVideos(me);
+  if(S.tabInf==="ranking")body=vRanking(me.id);
+  if(S.tabInf==="loja")body=vLoja(me);
+  return `<div class="phone">
+  ${sw}
+  ${heroMe(me)}
+  <nav class="tabs" role="tablist" style="margin-top:1.1rem">${tabs.map(([k,l])=>`<button role="tab" aria-selected="${S.tabInf===k}" data-action="tabInf" data-v="${k}">${l}</button>`).join("")}</nav>
+  ${body}</div>`;
+}
+function vTermo(me){
+  if(me.termo&&me.termo.recusado)return `<section class="panel" style="text-align:center;padding:2rem 1.2rem">
+    <h2 style="margin-bottom:.6rem">Termo não aceito</h2>
+    <p class="muted" style="margin-bottom:1.2rem">Para participar do programa de parceiros Prime Fit, enviar vídeos e acumular pontos, é preciso aceitar o termo de parceria. Se mudar de ideia, é só ler de novo.</p>
+    <button class="btn" data-action="reverTermo">Ler o termo novamente</button></section>`;
+  return `<section class="termo" aria-labelledby="termo-t">
+  <div class="termo-head"><h2 id="termo-t">Termo de parceria, permuta e uso de imagem</h2><p>Olá, ${esc(me.nome.split(" ")[0])}! Antes de acessar a plataforma, leia e aceite o termo abaixo.</p></div>
+  <div class="termo-body" tabindex="0">
+    <h3>Parceria e permuta</h3>
+    <p>Ao participar do programa de parceiros da Prime Fit, declaro estar ciente de que a parceria será realizada por meio de permuta, mediante o fornecimento de produtos, kits, refeições e/ou experiências Prime Fit em contrapartida às ações e conteúdos previamente combinados entre as partes.</p>
+    <p>Estou ciente de que não haverá pagamento obrigatório em dinheiro, salário ou remuneração fixa, salvo quando uma ação específica for negociada e formalizada separadamente.</p>
+    <h3>Encerramento da parceria</h3>
+    <p>A parceria poderá ser encerrada por qualquer uma das partes, a qualquer momento e sem multa, taxa de cancelamento ou qualquer outro custo pela rescisão.</p>
+    <p>O encerramento não gera obrigação de continuidade no fornecimento de produtos ou realização de novas ações.</p>
+    <h3>Uso de imagem, voz e conteúdo</h3>
+    <p>Autorizo a Prime Fit a utilizar minha imagem, nome, voz, fotografias, vídeos, depoimentos e conteúdos produzidos no âmbito desta parceria, incluindo conteúdos publicados ou disponibilizados por mim relacionados à Prime Fit e registros realizados durante eventos, treinos, ativações, gravações e campanhas.</p>
+    <p>A autorização compreende utilização nos canais institucionais e comerciais da Prime Fit, incluindo redes sociais, site, materiais digitais e impressos, apresentações, campanhas publicitárias e anúncios patrocinados/tráfego pago.</p>
+    <p>A Prime Fit poderá realizar cortes, edições, inclusão de legendas, identidade visual, trilha sonora e adaptações de formato necessárias à divulgação, preservando o contexto e a integridade da participação do parceiro.</p>
+    <p>O encerramento da parceria não obriga a Prime Fit a excluir conteúdos que tenham sido legitimamente produzidos, publicados ou utilizados durante sua vigência, observados os direitos previstos na legislação aplicável.</p>
+    <p class="decl">Declaro que li e compreendi as condições da parceria e que minha participação ocorre mediante permuta em produtos/benefícios Prime Fit, sem custo ou multa para encerramento da parceria.</p>
+  </div>
+  <div class="termo-foot">
+    <button class="btn" data-action="aceitarTermo">Sim, li e aceito todos os termos</button>
+    <button class="btn line" data-action="recusarTermo">Não aceito</button>
+  </div></section>`;
+}
+function heroMe(me){
+  const e=earned(me.id),saldo=e-spent(me.id),n=nivel(e);
+  const pos=ranking(me.cidade).findIndex(r=>r.id===me.id)+1;
+  return `<section class="me" aria-label="Seu resumo">
+    <div class="who"><div><div class="name">${esc(me.nome)}</div><div class="city">${esc(me.insta)} · ${pos}º em ${esc(me.cidade)}</div></div>
+    <div class="pts"><b>${saldo}</b><span>pontos para trocar</span></div></div>
+    <div class="level"><div class="lv"><strong>${n.cur.nome}</strong><span>${n.next?`${n.next.min-e} pts para ${n.next.nome}`:"Nível máximo"}</span></div>
+    <div class="bar" role="progressbar" aria-valuenow="${n.pct}" aria-valuemin="0" aria-valuemax="100"><div class="fill" style="width:${n.pct}%"></div></div></div>
+    <div class="coupon"><div><div style="font-size:.8rem;opacity:.8">Seu cupom · ${me.vendas} vendas</div><code>${esc(me.cupom)}</code></div>
+    <button class="btn-ghost-inv" data-action="copy" data-v="${esc(me.cupom)}">Copiar</button></div>
+  </section>`;
+}
+function vInicio(me){
+  const ativas=S.missoes.filter(m=>m.ativa);
+  const feitas=new Set(S.videos.filter(v=>v.infId===me.id&&v.missaoId).map(v=>v.missaoId));
+  const destaques=S.videos.filter(v=>v.campeao).slice(0,3);
+  return `<div class="stack">
+    <section class="panel"><div class="row between" style="margin-bottom:.8rem"><h2>Missões da semana</h2><span class="muted small">+${PTS.missao} pts cada</span></div>
+    ${ativas.length?ativas.map(m=>`<div class="mission" style="margin-top:.6rem"><div class="tag">${feitas.has(m.id)?"Enviada ✓":"Até "+esc(m.prazo)}</div><h3>${esc(m.titulo)}</h3><p class="small">${esc(m.descricao)}</p>
+      ${feitas.has(m.id)?"":`<div class="actions"><button class="btn sm alt" data-action="goMission" data-v="${m.id}">Gravar essa missão</button></div>`}</div>`).join(""):`<p class="empty">Nenhuma missão ativa agora.</p>`}
+    </section>
+    <section class="panel"><h2 style="margin-bottom:.7rem">Como você ganha pontos</h2>
+      <div class="rules">
+        <span>Vídeo aprovado</span><b>+${PTS.aprovado}</b>
+        <span>Publicado no seu perfil</span><b>+${PTS.publicado}</b>
+        <span>Vídeo feito para uma missão</span><b>+${PTS.missao}</b>
+        <span>Escolhido para anúncio</span><b>+${PTS.ads}</b>
+        <span>Virou criativo campeão nos anúncios</span><b>+${PTS.campeao}</b>
+        <span>Cada venda com seu cupom</span><b>+${PTS.venda}</b>
+      </div></section>
+    <section class="panel"><h2 style="margin-bottom:.4rem">Criativos campeões</h2><p class="muted small" style="margin-bottom:.6rem">Os vídeos que mais venderam nos anúncios. Assista e se inspire.</p>
+      ${destaques.map(v=>`<div class="item"><div class="body"><div class="title">${esc(inf(v.infId)?.nome)}</div><div class="small muted">${esc(inf(v.infId)?.cidade)}</div></div><a class="btn sm line" href="${esc(v.link)}" target="_blank" rel="noopener">Ver vídeo</a></div>`).join("")||`<p class="empty">Ainda sem campeões. Pode ser o seu.</p>`}
+    </section></div>`;
+}
+function vEnviar(me){
+  const ativas=S.missoes.filter(m=>m.ativa);
+  return `<form class="panel" data-form="enviar" novalidate>
+    <h2 style="margin-bottom:.9rem">Enviar vídeo</h2>
+    <div class="field"><label for="f-link">Link do vídeo (Drive, Instagram ou TikTok)</label><input id="f-link" name="link" type="url" placeholder="https://" required></div>
+    <div class="field"><label>Para que é esse vídeo?</label><div class="choices">
+      ${Object.entries(tipoTxt).map(([k,l],i)=>`<label><input type="radio" name="tipo" value="${k}" ${i===0?"checked":""}>${l}</label>`).join("")}</div></div>
+    <div class="field"><label for="f-m">Missão</label><select id="f-m" name="missao"><option value="">Nenhuma, conteúdo livre</option>
+      ${ativas.map(m=>`<option value="${m.id}" ${S.preMission===m.id?"selected":""}>${esc(m.titulo)} (+${PTS.missao})</option>`).join("")}</select></div>
+    <div class="field"><label for="f-obs">Recado para a equipe (opcional)</label><textarea id="f-obs" name="obs" placeholder="Ex.: tenho uma versão sem legenda se precisar para anúncio"></textarea></div>
+    <div class="actions" style="margin-top:1rem"><button class="btn" type="submit">Enviar para aprovação</button></div>
+    <p class="small muted" style="margin-top:.6rem">Ao enviar, você autoriza a Prime a usar o vídeo em anúncios, conforme o termo que você aceitou no cadastro.</p>
+  </form>`;
+}
+function statusChips(v){
+  const c=[];
+  if(v.status==="pendente")c.push(`<span class="chip wait">Em análise</span>`);
+  if(v.status==="recusado")c.push(`<span class="chip no">Não aprovado</span>`);
+  if(v.status==="aprovado")c.push(`<span class="chip">Aprovado</span>`);
+  if(v.publicado)c.push(`<span class="chip">Publicado</span>`);
+  if(v.ads)c.push(`<span class="chip">Em anúncio</span>`);
+  if(v.campeao)c.push(`<span class="chip star">Campeão</span>`);
+  if(v.missaoId)c.push(`<span class="chip wait">Missão: ${esc(missao(v.missaoId)?.titulo||"")}</span>`);
+  return c.join("");
+}
+function vMeusVideos(me){
+  const vs=S.videos.filter(v=>v.infId===me.id).sort((a,b)=>new Date(b.data)-new Date(a.data));
+  if(!vs.length)return `<div class="panel empty">Você ainda não enviou vídeos. <br><br><button class="btn" data-action="tabInf" data-v="enviar">Enviar o primeiro</button></div>`;
+  return `<section class="panel">${vs.map(v=>`<div class="item"><div class="body">
+    <div class="title">${tipoTxt[v.tipo]} · enviado em ${fmtD(v.data)}</div>
+    <div class="chips">${statusChips(v)}</div>
+    ${v.status==="recusado"&&v.obs?`<p class="small muted" style="margin-top:.35rem">Motivo: ${esc(v.obs)}</p>`:""}
+    ${v.status==="aprovado"&&!v.publicado?`<div class="actions"><button class="btn sm alt" data-action="publiquei" data-v="${v.id}">Já publiquei (+${PTS.publicado})</button></div>`:""}
+    </div><div class="gain">${vPts(v)?"+"+vPts(v):""}</div></div>`).join("")}</section>`;
+}
+function vRanking(meId){
+  const city=S.rankCity;const r=ranking(city);const top=r.slice(0,3);
+  const pod=(p,cls,n)=>p?`<div class="pod ${cls}"><div class="pname">${esc(p.nome.split(" ")[0])}</div><div class="ppts">${p.pts} pts</div><div class="pot">${n}</div></div>`:`<div></div>`;
+  const cr=cityRanking();
+  return `<div class="stack">
+  <section class="panel">
+    <div class="row between" style="flex-wrap:wrap;margin-bottom:.6rem"><h2>Ranking</h2>
+      <select data-action="rankCity" style="width:auto" aria-label="Filtrar cidade"><option value="todas">Todas as cidades</option>${S.cidades.map(c=>`<option ${c===city?"selected":""}>${esc(c)}</option>`).join("")}</select></div>
+    ${r.length?`<div class="podium">${pod(top[1],"p2",2)}${pod(top[0],"p1",1)}${pod(top[2],"p3",3)}</div>
+    <ol class="rank">${r.map((p,i)=>`<li class="${p.id===meId?"you":""}"><span class="pos">${i+1}</span><span class="n">${esc(p.nome)}${p.id===meId?" (você)":""}<small>${esc(p.cidade)} · ${nivel(p.pts).cur.nome}</small></span><b>${p.pts}</b></li>`).join("")}</ol>`:`<p class="empty">Ninguém cadastrado nessa cidade ainda.</p>`}
+  </section>
+  <section class="panel"><h2 style="margin-bottom:.3rem">Disputa entre cidades</h2><p class="small muted" style="margin-bottom:.6rem">Média de pontos por criador. A cidade campeã do mês ganha um prêmio para o time todo.</p>
+    <ol class="rank">${cr.map((c,i)=>`<li><span class="pos">${i+1}</span><span class="n">${esc(c.cidade)}<small>${c.membros} criadores · ${c.total} pts no total</small></span><b>${c.media}</b></li>`).join("")}</ol>
+  </section></div>`;
+}
+function vLoja(me){
+  const saldo=earned(me.id)-spent(me.id);
+  const meus=S.resgates.filter(r=>r.infId===me.id);
+  return `<div class="stack"><section class="panel"><div class="row between" style="margin-bottom:.8rem"><h2>Trocar pontos</h2><span class="muted small">Você tem ${saldo} pts</span></div>
+    <div class="shop">${S.recompensas.map(r=>`<div class="prod"><h3>${esc(r.nome)}</h3><p class="small muted">${esc(r.desc)}</p><div class="cost">${r.custo} pts</div>
+    <button class="btn sm" data-action="resgatar" data-v="${r.id}" ${saldo<r.custo?"disabled":""}>${saldo<r.custo?`Faltam ${r.custo-saldo} pts`:"Trocar"}</button></div>`).join("")}</div></section>
+    ${meus.length?`<section class="panel"><h2 style="margin-bottom:.6rem">Suas trocas</h2>${meus.map(r=>`<div class="item"><div class="body"><div class="title">${esc(r.nome)}</div><div class="small muted">${fmtD(r.data)}</div></div><span class="chip ${r.entregue?"":"wait"}">${r.entregue?"Entregue":"Separando"}</span></div>`).join("")}</section>`:""}
+  </div>`;
+}
+
+/* ---------- Views: Gestor ---------- */
+function vGestor(){
+  const pend=S.videos.filter(v=>v.status==="pendente").length;
+  const resg=S.resgates.filter(r=>!r.entregue).length;
+  const tabs=[["aprovar","Aprovar vídeos",pend],["banco","Banco de vídeos"],["ranking","Rankings"],["time","Criadores"],["missoes","Missões"],["cupons","Vendas por cupom"],["resgates","Trocas",resg]];
+  const inat=S.influencers.filter(i=>inativo(i.id)).length;
+  const semTermo=S.influencers.filter(i=>!(i.termo&&i.termo.aceito)).length;
+  const vendas=S.influencers.reduce((a,i)=>a+i.vendas,0);
+  const emAds=S.videos.filter(v=>v.ads).length;
+  let body="";
+  if(S.tabG==="aprovar")body=gAprovar();
+  if(S.tabG==="banco")body=gBanco();
+  if(S.tabG==="ranking")body=vRanking(null);
+  if(S.tabG==="time")body=gTime();
+  if(S.tabG==="missoes")body=gMissoes();
+  if(S.tabG==="cupons")body=gCupons();
+  if(S.tabG==="resgates")body=gResgates();
+  return `<div class="kpis">
+    <div class="kpi"><b>${S.influencers.length}</b><span>criadores em ${S.cidades.length} cidades</span></div>
+    <div class="kpi ${pend?"warn":""}"><b>${pend}</b><span>vídeos esperando aprovação</span></div>
+    <div class="kpi"><b>${emAds}</b><span>vídeos rodando em anúncio</span></div>
+    <div class="kpi"><b>${vendas}</b><span>vendas pelos cupons</span></div>
+    <div class="kpi ${inat?"warn":""}"><b>${inat}</b><span>sem enviar há 14+ dias</span></div>
+    <div class="kpi ${semTermo?"warn":""}"><b>${semTermo}</b><span>sem termo aceito</span></div>
+  </div>
+  <nav class="tabs" role="tablist">${tabs.map(([k,l,c])=>`<button role="tab" aria-selected="${S.tabG===k}" data-action="tabG" data-v="${k}">${l}${c?`<span class="count">${c}</span>`:""}</button>`).join("")}</nav>
+  ${body}`;
+}
+function gAprovar(){
+  const vs=S.videos.filter(v=>v.status==="pendente").sort((a,b)=>new Date(a.data)-new Date(b.data));
+  if(!vs.length)return `<div class="panel empty">Tudo aprovado. Nenhum vídeo na fila.</div>`;
+  return `<section class="panel">${vs.map(v=>{const i=inf(v.infId);return `<div class="item"><div class="body">
+    <div class="title">${esc(i?.nome)} <span class="muted small">· ${esc(i?.cidade)} · ${fmtD(v.data)}</span></div>
+    <div class="chips"><span class="chip">${tipoTxt[v.tipo]}</span>${v.missaoId?`<span class="chip wait">Missão: ${esc(missao(v.missaoId)?.titulo||"")}</span>`:""}</div>
+    ${v.obs?`<p class="small muted" style="margin-top:.3rem">“${esc(v.obs)}”</p>`:""}
+    <div class="actions"><a class="btn sm line" href="${esc(v.link)}" target="_blank" rel="noopener">Assistir</a>
+      <button class="btn sm" data-action="aprovar" data-v="${v.id}">Aprovar</button>
+      <button class="btn sm alt" data-action="aprovarAds" data-v="${v.id}">Aprovar e usar em anúncio</button>
+      <button class="btn sm danger" data-action="recusar" data-v="${v.id}">Recusar</button></div>
+  </div></div>`}).join("")}</section>`;
+}
+function gBanco(){
+  const vs=S.videos.filter(v=>v.status==="aprovado").sort((a,b)=>vPts(b)-vPts(a));
+  return `<section class="panel"><p class="small muted" style="margin-bottom:.8rem">Todos os vídeos aprovados. Marque os que foram para anúncio e os campeões de desempenho para pontuar o criador.</p>
+  <div class="tbl-wrap"><table><thead><tr><th>Criador</th><th>Tipo</th><th>Data</th><th>Anúncio</th><th>Campeão</th><th class="num">Pts</th><th></th></tr></thead><tbody>
+  ${vs.map(v=>{const i=inf(v.infId);return `<tr><td>${esc(i?.nome)}<div class="small muted">${esc(i?.cidade)}</div></td><td>${tipoTxt[v.tipo]}</td><td>${fmtD(v.data)}</td>
+  <td><input type="checkbox" style="width:auto;accent-color:var(--leaf)" data-action="toggleAds" data-v="${v.id}" ${v.ads?"checked":""} aria-label="Em anúncio"></td>
+  <td><input type="checkbox" style="width:auto;accent-color:var(--gold)" data-action="toggleCamp" data-v="${v.id}" ${v.campeao?"checked":""} aria-label="Criativo campeão"></td>
+  <td class="num"><b>${vPts(v)}</b></td><td><a href="${esc(v.link)}" target="_blank" rel="noopener">Ver</a></td></tr>`}).join("")}
+  </tbody></table></div></section>`;
+}
+function gTime(){
+  const list=S.influencers.map(i=>({...i,pts:earned(i.id),last:lastVideo(i.id)})).sort((a,b)=>a.cidade.localeCompare(b.cidade)||b.pts-a.pts);
+  return `<div class="grid2" style="align-items:start">
+  <section class="panel"><h2 style="margin-bottom:.6rem">Criadores</h2><div class="tbl-wrap"><table><thead><tr><th>Nome</th><th>Cidade</th><th>Nível</th><th>Último vídeo</th><th>Termo</th><th class="num">Pts</th></tr></thead><tbody>
+  ${list.map(i=>`<tr><td>${esc(i.nome)}<div class="small muted">${esc(i.insta)}</div></td><td>${esc(i.cidade)}</td><td>${nivel(i.pts).cur.nome}</td>
+  <td>${i.last?fmtD(new Date(i.last).toISOString()):"—"} ${inativo(i.id)?`<span class="chip wait">Parado</span>`:""}</td>
+  <td>${i.termo&&i.termo.aceito?`<span class="chip">Aceito ${fmtD(i.termo.data)}</span>`:i.termo&&i.termo.recusado?`<span class="chip no">Recusou</span>`:`<span class="chip wait">Pendente</span>`}</td><td class="num"><b>${i.pts}</b></td></tr>`).join("")}
+  </tbody></table></div></section>
+  <form class="panel" data-form="novoInf"><h2 style="margin-bottom:.8rem">Cadastrar criador</h2>
+    <div class="field"><label for="n-nome">Nome</label><input id="n-nome" name="nome" required></div>
+    <div class="field"><label for="n-insta">Instagram</label><input id="n-insta" name="insta" placeholder="@usuario" required></div>
+    <div class="field"><label for="n-cid">Cidade / loja</label><input id="n-cid" name="cidade" list="cids" required><datalist id="cids">${S.cidades.map(c=>`<option value="${esc(c)}">`).join("")}</datalist></div>
+    <div class="field"><label for="n-cup">Cupom</label><input id="n-cup" name="cupom" placeholder="Gerado pelo nome se ficar vazio"></div>
+    <div class="actions" style="margin-top:1rem"><button class="btn" type="submit">Cadastrar</button></div>
+  </form></div>`;
+}
+function gMissoes(){
+  return `<div class="grid2" style="align-items:start">
+  <section class="panel"><h2 style="margin-bottom:.6rem">Missões</h2>
+  ${S.missoes.map(m=>{const n=S.videos.filter(v=>v.missaoId===m.id).length;return `<div class="item"><div class="body"><div class="title">${esc(m.titulo)}</div>
+  <p class="small muted">${esc(m.descricao)}</p><div class="chips"><span class="chip ${m.ativa?"":"no"}">${m.ativa?"Ativa":"Encerrada"}</span><span class="chip wait">${n} vídeos</span><span class="chip">Prazo: ${esc(m.prazo)}</span></div></div>
+  <button class="btn sm line" data-action="toggleMissao" data-v="${m.id}">${m.ativa?"Encerrar":"Reativar"}</button></div>`}).join("")}</section>
+  <form class="panel" data-form="novaMissao"><h2 style="margin-bottom:.8rem">Nova missão</h2>
+    <div class="field"><label for="m-t">Título</label><input id="m-t" name="titulo" placeholder="Ex.: Rotina de marmitas da semana" required></div>
+    <div class="field"><label for="m-d">Briefing</label><textarea id="m-d" name="descricao" placeholder="O que gravar, gancho sugerido, o que não pode faltar" required></textarea></div>
+    <div class="field"><label for="m-p">Prazo</label><input id="m-p" name="prazo" placeholder="Ex.: sexta" required></div>
+    <div class="actions" style="margin-top:1rem"><button class="btn alt" type="submit">Publicar missão</button></div>
+  </form></div>`;
+}
+function gCupons(){
+  const list=[...S.influencers].sort((a,b)=>b.vendas-a.vendas);
+  return `<section class="panel"><p class="small muted" style="margin-bottom:.8rem">Lance aqui as vendas feitas com o cupom de cada criador. Cada venda vale ${PTS.venda} pts.</p>
+  <div class="tbl-wrap"><table><thead><tr><th>Criador</th><th>Cupom</th><th class="num">Vendas</th><th>Lançar vendas</th></tr></thead><tbody>
+  ${list.map(i=>`<tr><td>${esc(i.nome)}<div class="small muted">${esc(i.cidade)}</div></td><td><code>${esc(i.cupom)}</code></td><td class="num"><b>${i.vendas}</b></td>
+  <td><div class="row" style="gap:.4rem"><input type="number" min="1" value="1" style="width:4.5rem" id="q-${i.id}" aria-label="Quantidade"><button class="btn sm" data-action="addVenda" data-v="${i.id}">Somar</button></div></td></tr>`).join("")}
+  </tbody></table></div></section>`;
+}
+function gResgates(){
+  const rs=[...S.resgates].sort((a,b)=>(a.entregue-b.entregue)||new Date(b.data)-new Date(a.data));
+  if(!rs.length)return `<div class="panel empty">Nenhuma troca de pontos ainda.</div>`;
+  return `<section class="panel">${rs.map(r=>{const i=inf(r.infId);return `<div class="item"><div class="body"><div class="title">${esc(r.nome)}</div>
+  <div class="small muted">${esc(i?.nome)} · ${esc(i?.cidade)} · ${fmtD(r.data)}</div></div>
+  ${r.entregue?`<span class="chip">Entregue</span>`:`<button class="btn sm" data-action="entregar" data-v="${r.id}">Marcar entregue</button>`}</div>`}).join("")}</section>`;
+}
+
+/* ---------- Render e eventos ---------- */
+function render(){
+  document.querySelectorAll('[data-action="mode"]').forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===S.mode));
+  document.getElementById("app").innerHTML=S.mode==="inf"?vInf():vGestor();
+  save();
+}
+const vid=id=>S.videos.find(v=>v.id===id);
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-action]");if(!el||el.tagName==="SELECT"||el.type==="checkbox")return;
+  const a=el.dataset.action,v=el.dataset.v;
+  if(a==="mode"){S.mode=v;}
+  else if(a==="tabInf"){S.tabInf=v;S.preMission=null;}
+  else if(a==="tabG"){S.tabG=v;}
+  else if(a==="aceitarTermo"){inf(S.meId).termo={aceito:true,data:new Date().toISOString()};S.tabInf="inicio";toast("Termo aceito. Bem-vindo ao Time Prime!");}
+  else if(a==="recusarTermo"){inf(S.meId).termo={aceito:false,recusado:true,data:new Date().toISOString()};}
+  else if(a==="reverTermo"){inf(S.meId).termo=null;}
+  else if(a==="goMission"){S.tabInf="enviar";S.preMission=v;}
+  else if(a==="copy"){try{navigator.clipboard.writeText(v);toast("Cupom copiado");}catch(_){toast(v);}return;}
+  else if(a==="publiquei"){vid(v).publicado=true;toast(`+${PTS.publicado} pts. Boa!`);}
+  else if(a==="aprovar"){vid(v).status="aprovado";toast("Vídeo aprovado");}
+  else if(a==="aprovarAds"){const x=vid(v);x.status="aprovado";x.ads=true;toast("Aprovado e marcado para anúncio");}
+  else if(a==="recusar"){const motivo=prompt("Motivo da recusa (o criador vai ver):","");if(motivo===null)return;const x=vid(v);x.status="recusado";x.obs=motivo;toast("Vídeo recusado");}
+  else if(a==="toggleMissao"){const m=missao(v);m.ativa=!m.ativa;}
+  else if(a==="addVenda"){const q=Math.max(1,parseInt(document.getElementById("q-"+v).value,10)||1);inf(v).vendas+=q;toast(`${q} venda(s) lançada(s)`);}
+  else if(a==="entregar"){S.resgates.find(r=>r.id===v).entregue=true;toast("Troca entregue");}
+  else if(a==="resgatar"){const r=S.recompensas.find(x=>x.id===v);const saldo=earned(S.meId)-spent(S.meId);if(saldo<r.custo)return;
+    S.resgates.push({id:uid(),infId:S.meId,recId:r.id,nome:r.nome,custo:r.custo,data:new Date().toISOString(),entregue:false});toast(`${r.nome} garantido! A loja vai separar.`);}
+  render();
+});
+document.addEventListener("change",e=>{
+  const el=e.target;const a=el.dataset.action;if(!a)return;
+  if(a==="me"){S.meId=el.value;}
+  else if(a==="rankCity"){S.rankCity=el.value;}
+  else if(a==="toggleAds"){vid(el.dataset.v).ads=el.checked;}
+  else if(a==="toggleCamp"){const x=vid(el.dataset.v);x.campeao=el.checked;if(el.checked)x.ads=true;if(el.checked)toast(`Campeão! +${PTS.campeao} pts para o criador`);}
+  else return;
+  render();
+});
+document.addEventListener("submit",e=>{
+  const f=e.target;e.preventDefault();const d=Object.fromEntries(new FormData(f));
+  if(f.dataset.form==="enviar"){
+    if(!/^https?:\/\/\S+/.test(d.link||"")){toast("Cole o link completo do vídeo, começando com https://");f.link.focus();return;}
+    S.videos.push({id:uid(),infId:S.meId,link:d.link.trim(),tipo:d.tipo,missaoId:d.missao||null,status:"pendente",publicado:false,ads:false,campeao:false,obs:(d.obs||"").trim(),data:new Date().toISOString()});
+    S.tabInf="videos";S.preMission=null;toast("Vídeo enviado para aprovação");
+  }
+  if(f.dataset.form==="novoInf"){
+    if(!d.nome.trim()||!d.insta.trim()||!d.cidade.trim()){toast("Preencha nome, Instagram e cidade");return;}
+    const cidade=d.cidade.trim();if(!S.cidades.includes(cidade))S.cidades.push(cidade);
+    const cupom=(d.cupom.trim()||d.nome.trim().split(" ")[0].normalize("NFD").replace(/[\u0300-\u036f]/g,"")+"10").toUpperCase().replace(/\s/g,"");
+    S.influencers.push({id:uid(),nome:d.nome.trim(),insta:d.insta.trim(),cidade,cupom,vendas:0});toast(`${d.nome.trim()} cadastrado com o cupom ${cupom}`);
+  }
+  if(f.dataset.form==="novaMissao"){
+    if(!d.titulo.trim()||!d.descricao.trim()){toast("Preencha título e briefing");return;}
+    S.missoes.unshift({id:uid(),titulo:d.titulo.trim(),descricao:d.descricao.trim(),prazo:d.prazo.trim()||"—",ativa:true});toast("Missão publicada para todos os criadores");
+  }
+  render();
+});
+render();
+</script>
+</body>
+</html>
